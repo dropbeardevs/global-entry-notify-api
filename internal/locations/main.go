@@ -6,12 +6,12 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
+	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var LocationsList *[]Locations
@@ -34,40 +34,73 @@ func InitLocations() {
 
 	json.Unmarshal(body, &locations)
 
+	SaveLocationsDb(locations)
+
 	LocationsList = &locations
 
 }
 
-func SaveLocationsInDb(locations []Locations) {
+func SaveLocationsDb(locations []Locations) {
 
-	ctx := context.Background()
+	coll := db.Datastore.Database.Collection("locations")
+
+	// ctx := context.Background()
 
 	for _, location := range locations {
 
-		var dbLocation Locations // This is location from database
-		var err error
+		var l Locations
 
-		doc, err := db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Get(ctx)
+		filter := bson.M{"_id": location.Id}
+		opts := options.Replace().SetUpsert(true)
+
+		err := coll.FindOne(context.TODO(), filter).Decode(&l)
 		if err != nil {
-			// Check if doc exists, otherwise, insert item
-			if status.Code(err) == codes.NotFound {
-
-				_, err = db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Set(ctx, location)
-				if err != nil {
-					log.Fatalln(err)
-				}
-			}
+			log.Fatal(err)
 		}
 
-		// If doc exists, unmarshal into Locations struct
-		err = doc.DataTo(&dbLocation)
-		if err != nil {
-			log.Fatalln(err)
-		} else if dbLocation.LastUpdatedDate != location.LastUpdatedDate { // Compare LastUpdatedDate between response and database
-			_, err = db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Set(ctx, location)
+		// Convert times
+		dbDate, _ := time.Parse("2006-01-02T15:04:05", l.LastUpdatedDate)
+		wsDate, _ := time.Parse("2006-01-02T15:04:05", location.LastUpdatedDate)
+
+		if wsDate.After(dbDate) {
+			result, err := coll.ReplaceOne(context.TODO(), filter, location, opts)
 			if err != nil {
-				log.Fatalln(err)
+				log.Fatal(err)
 			}
+
+			log.Printf("Inserted document with _id: %v\n", result.UpsertedID)
 		}
+
 	}
+
+	// for _, location := range locations {
+
+	// 	var dbLocation Locations // This is location from database
+	// 	var err error
+
+	// 	err := coll.FindOne(context.TODO(), bson.M{"orderNo": orderNo}).Decode(&order)
+
+	// 	doc, err := db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Get(ctx)
+	// 	if err != nil {
+	// 		// Check if doc exists, otherwise, insert item
+	// 		if status.Code(err) == codes.NotFound {
+
+	// 			result, err := coll.InsertOne(context.TODO(), location)
+	// 			if err != nil {
+	// 				log.Fatalln(err)
+	// 			}
+	// 		}
+	// 	}
+
+	// 	// If doc exists, unmarshal into Locations struct
+	// 	err = doc.DataTo(&dbLocation)
+	// 	if err != nil {
+	// 		log.Fatalln(err)
+	// 	} else if dbLocation.LastUpdatedDate != location.LastUpdatedDate { // Compare LastUpdatedDate between response and database
+	// 		_, err = db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Set(ctx, location)
+	// 		if err != nil {
+	// 			log.Fatalln(err)
+	// 		}
+	// 	}
+	// }
 }

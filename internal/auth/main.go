@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func GetFirebaseCreds() []byte {
-	json, err := os.Open("/Users/homerdulu/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json")
+func GetFirebaseCreds(credsPath *string) []byte {
+	json, err := os.Open(*credsPath)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -9,11 +9,11 @@ import (
 
 var Config *Configuration
 
-func LoadConfig(filename string) {
+func LoadConfig(filename *string) {
 
 	var c Configuration
 
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := ioutil.ReadFile(*filename)
 	if err != nil {
 		log.Fatal(err)
 	}

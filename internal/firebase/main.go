@@ -11,12 +11,12 @@ import (
 
 var FirebaseApp *firebase.App
 
-func InitFirebaseApp() {
+func InitFirebaseApp(credsPath *string) {
 
 	// Use a service account
 	ctx := context.Background()
 
-	json := auth.GetFirebaseCreds()
+	json := auth.GetFirebaseCreds(credsPath)
 
 	sa := option.WithCredentialsJSON(json)
 

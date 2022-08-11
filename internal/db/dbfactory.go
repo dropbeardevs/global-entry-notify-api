@@ -2,32 +2,57 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
-	fb "bitbucket.org/dropbeardevs/global-entry-notify-api/internal/firebase"
-	"cloud.google.com/go/firestore"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// TODO: Implement interface
-type FirestoreClient struct {
-	Client     *firestore.Client
-	Collection *firestore.CollectionRef
+var Datastore *MongoDatastore // Reuse this variable for connections
+
+type MongoDatastore struct {
+	Client   *mongo.Client
+	Database *mongo.Database
 }
 
-var DbClient *FirestoreClient
+func InitDatastore() {
 
-func InitDataStore() {
-	firestoreClient := FirestoreClient{}
+	datastore := MongoDatastore{}
+
+	Datastore = &datastore
+
+	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
+	clientOptions := options.Client().
+		ApplyURI(config.Config.ConnectionString).
+		SetServerAPIOptions(serverAPIOptions)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	var err error
-
-	ctx := context.Background()
-
-	firestoreClient.Client, err = fb.FirebaseApp.Firestore(ctx)
+	Datastore.Client, err = mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
-	firestoreClient.Collection = firestoreClient.Client.Collection("global-entry")
+	datastore.Database = datastore.Client.Database("globalEntryNotifyDb")
 
-	DbClient = &firestoreClient
+	// Check the connection
+	err = datastore.Client.Ping(ctx, readpref.Primary())
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
+
+	databases, err := datastore.Client.ListDatabaseNames(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Databases: %v\n", databases)
 }
