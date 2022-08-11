@@ -2,21 +2,27 @@ package config
 
 import (
 	"io/ioutil"
+	"log"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
-func loadConfig(filename string) (Configuration, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return Configuration{}, err
-	}
+var Config *Configuration
+
+func LoadConfig(filename string) {
 
 	var c Configuration
-	err = yaml.Unmarshal(bytes, &c)
+
+	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return Configuration{}, err
+		log.Fatal(err)
 	}
 
-	return c, nil
+	err = yaml.Unmarshal(bytes, &c)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	Config = &c
+
 }
