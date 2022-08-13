@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+	"os"
 	"sync"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/appts"
@@ -13,8 +15,12 @@ import (
 
 func main() {
 
-	configPath := "/Users/homerdulu/Developer/secrets/global-entry-notify-api/config.yml"
-	credsPath := "/Users/homerdulu/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	configPath := homeDir + "/Developer/secrets/global-entry-notify-api/config.yml"
+	credsPath := homeDir + "/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
 
 	var wg sync.WaitGroup
 
