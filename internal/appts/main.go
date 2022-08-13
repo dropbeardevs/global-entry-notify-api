@@ -24,22 +24,27 @@ func PollAppointments(wg *sync.WaitGroup) {
 		for _, location := range *locations.LocationsList {
 			appointment := GetAppointments(location.Id)
 
-			// Go through user list
-			apptDateString := appointment[0].StartDate
+			//appointment := GetAppointments(5010)
 
-			apptDate, err := time.Parse("2006-01-02T15:04", apptDateString)
-			if err != nil {
-				log.Fatalln(err)
-			}
+			// Empty appointment check
+			if len(appointment) > 0 {
+				// Go through user list
+				apptDateString := appointment[0].StartDate
 
-			for _, user := range *users.UserList {
-				if (apptDate.Before(user.BeforeDate)) &&
-					(utils.Contains(user.LocationIds, location.Id)) {
-					log.Printf("Yay! %v", user.UserId)
+				apptDate, err := time.Parse("2006-01-02T15:04", apptDateString)
+				if err != nil {
+					log.Fatalln(err)
+				}
+
+				for _, user := range *users.UserList {
+					if (apptDate.Before(user.BeforeDate)) &&
+						(utils.Contains(user.LocationIds, location.Id)) {
+						log.Printf("Yay! %v", user.UserId)
+					}
 				}
 			}
 
-			time.Sleep(5 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 
 	}

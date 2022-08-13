@@ -16,7 +16,7 @@ import (
 
 var LocationsList *[]Locations
 
-func InitLocations() {
+func GetLocations() {
 
 	resp, err := http.Get(config.Config.Urls["locations"])
 
@@ -34,9 +34,9 @@ func InitLocations() {
 
 	json.Unmarshal(body, &locations)
 
-	SaveLocationsDb(locations)
-
 	LocationsList = &locations
+
+	SaveLocationsDb(locations)
 
 }
 

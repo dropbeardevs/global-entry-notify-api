@@ -26,9 +26,9 @@ func main() {
 
 	//defer db.DbClient.Client.Close()
 
-	users.InitUsers()
+	users.GetUsers()
 
-	locations.InitLocations()
+	locations.GetLocations()
 
 	// locations.SetLocations()
 	wg.Add(1)
