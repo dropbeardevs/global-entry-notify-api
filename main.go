@@ -15,6 +15,8 @@ import (
 
 func main() {
 
+	var err error
+
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
@@ -34,10 +36,13 @@ func main() {
 
 	users.GetUsers()
 
-	locations.GetLocations()
+	locations, err := locations.GetLocations()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// locations.SetLocations()
-	wg.Add(1)
-	go appts.PollAppointments(&wg)
-	wg.Wait()
+	//wg.Add(1)
+	appts.PollAppointments(&wg, locations)
+	//wg.Wait()
 }

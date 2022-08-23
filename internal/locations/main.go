@@ -3,6 +3,7 @@ package locations
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -11,64 +12,86 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var LocationsList *[]Locations
+func GetLocations() (*[]Locations, error) {
 
-func GetLocations() {
+	var err error
 
 	resp, err := http.Get(config.Config.Urls["locations"])
-
 	if err != nil {
 		log.Fatal(err)
+		return nil, errors.New("error getting location")
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
+		return nil, errors.New("error getting location")
 	}
 
 	var locations []Locations
 
-	json.Unmarshal(body, &locations)
+	err = json.Unmarshal(body, &locations)
+	if err != nil {
+		log.Fatal(err)
+		return nil, errors.New("error unmarshalling location json")
+	}
 
-	LocationsList = &locations
+	if locations != nil {
+		SaveLocationsDb(&locations)
 
-	SaveLocationsDb(locations)
+		return &locations, nil
+	} else {
+		return nil, errors.New("no locations returned")
+	}
 
 }
 
-func SaveLocationsDb(locations []Locations) {
+func SaveLocationsDb(locations *[]Locations) {
 
 	coll := db.Datastore.Database.Collection("locations")
 
 	// ctx := context.Background()
 
-	for _, location := range locations {
+	for _, location := range *locations {
 
 		var l Locations
+		updateTime := time.Now()
 
-		filter := bson.M{"_id": location.Id}
-		opts := options.Replace().SetUpsert(true)
+		filter := bson.M{"locationId": location.LocationId}
+		//opts := options.Replace().SetUpsert(true)
 
 		err := coll.FindOne(context.TODO(), filter).Decode(&l)
-		if err != nil {
+		// If document doesn't exist, insert document
+		if err == mongo.ErrNoDocuments {
+
+			location.LastUpdated = updateTime
+
+			result, err := coll.InsertOne(context.TODO(), location)
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				log.Printf("Insert ID: %v\n", result.InsertedID)
+			}
+		} else if err != nil {
 			log.Fatal(err)
 		}
 
 		// Convert times
-		dbDate, _ := time.Parse("2006-01-02T15:04:05", l.LastUpdatedDate)
-		wsDate, _ := time.Parse("2006-01-02T15:04:05", location.LastUpdatedDate)
+		dbDate, _ := time.Parse("2006-01-02T15:04:05", l.LocationLastUpdatedDate)
+		wsDate, _ := time.Parse("2006-01-02T15:04:05", location.LocationLastUpdatedDate)
 
-		if wsDate.After(dbDate) {
-			result, err := coll.ReplaceOne(context.TODO(), filter, location, opts)
+		if (wsDate.After(dbDate)) && (l.LocationLastUpdatedDate != "") {
+			location.LastUpdated = updateTime
+			result, err := coll.ReplaceOne(context.TODO(), filter, location)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			log.Printf("Inserted document with _id: %v\n", result.UpsertedID)
+			log.Printf("%v documents modified\n", result.ModifiedCount)
 		}
 
 	}
