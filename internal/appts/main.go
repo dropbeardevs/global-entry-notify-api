@@ -12,7 +12,6 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/users"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/utils"
 )
 
@@ -22,26 +21,34 @@ func PollAppointments(wg *sync.WaitGroup) {
 	for range ticker.C {
 
 		for _, location := range *locations.LocationsList {
-			appointment := GetAppointments(location.Id)
+			appointmentsList := GetAppointments(location.Id)
 
 			//appointment := GetAppointments(5010)
 
 			// Empty appointment check
-			if len(appointment) > 0 {
-				// Go through user list
-				apptDateString := appointment[0].StartDate
+			if len(appointmentsList) > 0 {
 
-				apptDate, err := time.Parse("2006-01-02T15:04", apptDateString)
-				if err != nil {
-					log.Fatalln(err)
-				}
+				for i, appointment := range appointmentsList {
+					// Go through appointment list
+					apptDateString := appointment.StartDate
 
-				for _, user := range *users.UserList {
-					if (apptDate.Before(user.BeforeDate)) &&
-						(utils.Contains(user.LocationIds, location.Id)) {
-						log.Printf("Yay! %v", user.UserId)
+					apptDate, err := time.Parse("2006-01-02T15:04", apptDateString)
+					if err != nil {
+						log.Fatalln(err)
 					}
+
+					for j, notifications := range appointment.NotificationsList {
+						if (apptDate.Before(user.BeforeDate)) &&
+							(utils.Contains(user.LocationIds, location.Id)) {
+							log.Printf("Yay! %v", user.UserId)
+						}
+
+						log.Printf("Proessed %v notifications", j)
+					}
+
+					log.Printf("Proessed %v appointments", i)
 				}
+
 			}
 
 			time.Sleep(1 * time.Second)
