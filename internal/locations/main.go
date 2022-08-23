@@ -11,66 +11,68 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetLocations() (*[]Locations, error) {
+func GetAndSaveWsLocations() error {
 
 	var err error
 
 	resp, err := http.Get(config.Config.Urls["locations"])
 	if err != nil {
 		log.Fatal(err)
-		return nil, errors.New("error getting location")
+		return errors.New("error getting location")
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
-		return nil, errors.New("error getting location")
+		return errors.New("error getting location")
 	}
 
-	var locations []Locations
+	var locations []models.Location
 
 	err = json.Unmarshal(body, &locations)
 	if err != nil {
 		log.Fatal(err)
-		return nil, errors.New("error unmarshalling location json")
+		return errors.New("error unmarshalling location json")
 	}
 
 	if locations != nil {
 		SaveLocationsDb(&locations)
 
-		return &locations, nil
+		return nil
 	} else {
-		return nil, errors.New("no locations returned")
+		return errors.New("no locations returned")
 	}
 
 }
 
-func SaveLocationsDb(locations *[]Locations) {
+func SaveLocationsDb(wsLocations *[]models.Location) {
 
 	coll := db.Datastore.Database.Collection("locations")
 
 	// ctx := context.Background()
 
-	for _, location := range *locations {
+	for _, wsLocation := range *wsLocations {
 
-		var l Locations
+		var dbLocation models.Location
 		updateTime := time.Now()
 
-		filter := bson.M{"locationId": location.LocationId}
+		filter := bson.M{"locationId": wsLocation.LocationId}
 		//opts := options.Replace().SetUpsert(true)
 
-		err := coll.FindOne(context.TODO(), filter).Decode(&l)
+		err := coll.FindOne(context.TODO(), filter).Decode(&dbLocation)
+
 		// If document doesn't exist, insert document
 		if err == mongo.ErrNoDocuments {
 
-			location.LastUpdated = updateTime
+			wsLocation.LastUpdated = updateTime
 
-			result, err := coll.InsertOne(context.TODO(), location)
+			result, err := coll.InsertOne(context.TODO(), wsLocation)
 			if err != nil {
 				log.Fatal(err)
 			} else {
@@ -78,20 +80,30 @@ func SaveLocationsDb(locations *[]Locations) {
 			}
 		} else if err != nil {
 			log.Fatal(err)
-		}
+		} else { // Continue on if record exists
 
-		// Convert times
-		dbDate, _ := time.Parse("2006-01-02T15:04:05", l.LocationLastUpdatedDate)
-		wsDate, _ := time.Parse("2006-01-02T15:04:05", location.LocationLastUpdatedDate)
-
-		if (wsDate.After(dbDate)) && (l.LocationLastUpdatedDate != "") {
-			location.LastUpdated = updateTime
-			result, err := coll.ReplaceOne(context.TODO(), filter, location)
+			// Convert times
+			dbUpdatedDate, err := time.Parse("2006-01-02T15:04:05", dbLocation.WsLocationLastUpdated)
 			if err != nil {
-				log.Fatal(err)
+				log.Print(err)
 			}
 
-			log.Printf("%v documents modified\n", result.ModifiedCount)
+			wsUpdatedDate, err := time.Parse("2006-01-02T15:04:05", wsLocation.WsLocationLastUpdated)
+			if err != nil {
+				log.Print(err)
+			}
+
+			if wsUpdatedDate.After(dbUpdatedDate) {
+
+				wsLocation.LastUpdated = updateTime
+
+				result, err := coll.ReplaceOne(context.TODO(), filter, wsLocation)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				log.Printf("%v documents modified\n", result.ModifiedCount)
+			}
 		}
 
 	}

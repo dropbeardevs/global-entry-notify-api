@@ -10,7 +10,6 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
 	fb "bitbucket.org/dropbeardevs/global-entry-notify-api/internal/firebase"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/users"
 )
 
 func main() {
@@ -34,9 +33,7 @@ func main() {
 
 	//defer db.DbClient.Client.Close()
 
-	users.GetUsers()
-
-	locations, err := locations.GetLocations()
+	err = locations.GetAndSaveWsLocations()
 	if err != nil {
 		log.Fatal(err)
 	}

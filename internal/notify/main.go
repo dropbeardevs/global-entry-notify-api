@@ -2,7 +2,7 @@ package notify
 
 func SendNotification(token string) (string, error) {
 
-	result := "Sucess"
+	result := "Success"
 
 	return result, nil
 }

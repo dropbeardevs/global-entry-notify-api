@@ -4,14 +4,15 @@ import (
 	"io/ioutil"
 	"log"
 
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"gopkg.in/yaml.v3"
 )
 
-var Config *Configuration
+var Config *models.Configuration
 
 func LoadConfig(filename *string) {
 
-	var c Configuration
+	var c models.Configuration
 
 	bytes, err := ioutil.ReadFile(*filename)
 	if err != nil {
