@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"sync"
 	"text/template"
@@ -14,14 +13,15 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/notify"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func PopulateAppointmentsDb(locationList *[]models.Location) error {
 
+	sugar := logger.GetInstance()
 	coll := db.Datastore.Database.Collection("appointments")
 
 	for _, location := range *locationList {
@@ -32,22 +32,22 @@ func PopulateAppointmentsDb(locationList *[]models.Location) error {
 
 		count, err := coll.CountDocuments(context.TODO(), filter)
 		if err != nil {
-			log.Fatal(err)
+			sugar.Error(err)
 		}
 
 		if count == 0 {
 
-			var appointmentEntry models.Appointment
+			var appointmentEntry models.DbAppointment
 
 			appointmentEntry.LocationId = location.LocationId
 			appointmentEntry.LastUpdated = time.Now()
 
 			result, err := coll.InsertOne(context.TODO(), appointmentEntry)
 			if err != nil {
-				log.Println(err)
+				sugar.Error(err)
 				return err
 			} else {
-				log.Printf("DB Result: %v\n", result)
+				sugar.Infof("DB Result: %v\n", result)
 			}
 		}
 
@@ -58,26 +58,26 @@ func PopulateAppointmentsDb(locationList *[]models.Location) error {
 }
 
 func PollAppointments(wg *sync.WaitGroup) error {
+
+	sugar := logger.GetInstance()
 	coll := db.Datastore.Database.Collection("appointments")
 
-	ticker := time.NewTicker(5 * time.Second)
+	ticker := time.NewTicker(60 * time.Second)
 
 	for range ticker.C {
 
 		cursor, err := coll.Find(context.TODO(), bson.M{})
 		if err != nil {
-			log.Println(err)
+			sugar.Error(err)
 			return err
 		}
-
-		defer cursor.Close(context.TODO())
 
 		for cursor.Next(context.TODO()) {
 
 			var dbAppt models.DbAppointment
 
 			if err = cursor.Decode(&dbAppt); err != nil {
-				log.Println(err)
+				sugar.Error(err)
 				return err
 			}
 
@@ -88,35 +88,15 @@ func PollAppointments(wg *sync.WaitGroup) error {
 
 				wsApptDate, err := dateStringToDate(wsAppt.StartTimestamp)
 				if err != nil {
-					log.Fatal(err)
+					sugar.Error(err)
 				}
 
-				filter := bson.M{
-					"locationId": wsAppt.LocationId,
-				}
-				// opts := options.Replace().SetUpsert(true)
-
-				// Get appointment from DB
-				err = coll.FindOne(context.TODO(), filter).Decode(&dbAppt)
-				// If document doesn't exist, insert document
-				if err == mongo.ErrNoDocuments {
-
-					dbAppt.LocationId = wsAppt.LocationId
-					dbAppt.Date = wsApptDate
-					dbAppt.LastUpdated = updateTime
-
-					result, err := coll.InsertOne(context.TODO(), dbAppt)
-					if err != nil {
-						log.Fatal(err)
-					} else {
-						log.Printf("DB Result: %v\n", result)
-					}
-				} else if err != nil {
-					log.Fatal(err)
-					return errors.New("Error getting appointments")
-				}
-
+				// If there are changes to the appointment date, update document
 				if wsApptDate != dbAppt.Date {
+
+					filter := bson.M{
+						"locationId": dbAppt.LocationId,
+					}
 
 					update := bson.M{
 						"$set": bson.M{
@@ -127,25 +107,26 @@ func PollAppointments(wg *sync.WaitGroup) error {
 
 					result, err := coll.UpdateOne(context.TODO(), filter, update)
 					if err != nil {
-						log.Fatal(err)
+						sugar.Error(err)
 					}
 
-					log.Printf("%v records updated\n", result.ModifiedCount)
+					sugar.Infof("LocationId: %v - %v records updated\n", wsAppt.LocationId, result.ModifiedCount)
 				}
 
 				// Go through all notifications
-				for j, notification := range dbAppt.NotificationsList {
+				for j, notification := range dbAppt.NotificationList {
 
 					// If returned appointment date is before target date
 					// And the last notification is not equal to LastUpdated
 					if (wsApptDate.Before(notification.TargetDate)) &&
 						(dbAppt.LastUpdated != notification.LastNotifiedDate) {
+
 						notifyResult, err := notify.SendNotification(notification.Token)
 						if err != nil {
-							log.Fatal(err)
+							sugar.Error(err)
 						}
 
-						log.Printf("Notification sent: %v\n", notifyResult)
+						sugar.Infof("Notification sent: %v\n", notifyResult)
 
 						filter := bson.M{
 							"token": notification.Token,
@@ -153,24 +134,26 @@ func PollAppointments(wg *sync.WaitGroup) error {
 						// Update notification record
 						update := bson.M{
 							"$set": bson.M{
-								"lastNotifiedDate": updateTime,
+								"DbAppointment.Notification.lastNotifiedDate": updateTime,
 							},
 						}
 
 						updateResult, err := coll.UpdateOne(context.TODO(), filter, update)
 						if err != nil {
-							log.Fatal(err)
+							sugar.Error(err)
 						}
 
-						log.Printf("%v records updated\n", updateResult.ModifiedCount)
+						sugar.Infof("%v records updated\n", updateResult.ModifiedCount)
 
 					}
 
-					log.Printf("Processed %v notifications\n", j)
+					sugar.Infof("Processed %v notifications\n", j)
 				}
 				time.Sleep(1 * time.Second)
 			}
 		}
+
+		cursor.Close(context.TODO())
 	}
 
 	wg.Done()
@@ -180,19 +163,21 @@ func PollAppointments(wg *sync.WaitGroup) error {
 
 func GetWsAppointment(locationId int) models.WsAppointment {
 
+	sugar := logger.GetInstance()
+	config := config.GetInstance()
 	var buf bytes.Buffer
-	msg := config.Config.Urls["appts"]
+	msg := config.Urls["appts"]
 	substitute := models.ApptUrlValue{LocationId: locationId}
 
 	tmpl, err := template.New("msg").Parse(msg)
 	if err != nil {
-		log.Fatal(err)
+		sugar.Error(err)
 	}
 
 	// Insert LocationId into URL
 	err = tmpl.Execute(&buf, substitute)
 	if err != nil {
-		log.Fatal(err)
+		sugar.Error(err)
 	}
 
 	url := buf.String()
@@ -200,14 +185,14 @@ func GetWsAppointment(locationId int) models.WsAppointment {
 	// Get appointment from WS
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		sugar.Error(err)
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		sugar.Error(err)
 	}
 
 	var appts []models.WsAppointment
@@ -224,10 +209,12 @@ func GetWsAppointment(locationId int) models.WsAppointment {
 
 func dateStringToDate(dateString string) (time.Time, error) {
 
+	sugar := logger.GetInstance()
+
 	date, err := time.Parse("2006-01-02T15:04", dateString)
 	if err != nil {
-		log.Fatalln(err)
-		return time.Time{}, errors.New("Unable to convert string to date")
+		sugar.Error(err)
+		return time.Time{}, errors.New("unable to convert string to date")
 	}
 
 	return date, nil

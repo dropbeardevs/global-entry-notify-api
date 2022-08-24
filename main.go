@@ -9,11 +9,9 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
 	fb "bitbucket.org/dropbeardevs/global-entry-notify-api/internal/firebase"
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 )
 
 func main() {
-
 	var err error
 
 	homeDir, err := os.UserHomeDir()
@@ -23,9 +21,9 @@ func main() {
 	configPath := homeDir + "/Developer/secrets/global-entry-notify-api/config.yml"
 	credsPath := homeDir + "/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
 
-	var wg sync.WaitGroup
-
 	config.LoadConfig(&configPath)
+
+	var wg sync.WaitGroup
 
 	fb.InitFirebaseApp(&credsPath)
 
@@ -33,13 +31,15 @@ func main() {
 
 	//defer db.DbClient.Client.Close()
 
-	err = locations.GetAndSaveWsLocations()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// locationList, err := locations.GetAndSaveWsLocations()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// appts.PopulateAppointmentsDb(locationList)
 
 	// locations.SetLocations()
-	//wg.Add(1)
-	appts.PollAppointments(&wg, locations)
-	//wg.Wait()
+	wg.Add(1)
+	appts.PollAppointments(&wg)
+	wg.Wait()
 }

@@ -73,6 +73,11 @@ type Creds struct {
 }
 
 type Configuration struct {
-	Urls             map[string]string `yaml:"urls"`
-	ConnectionString string            `yaml:"connectionString"`
+	Urls                       map[string]string `yaml:"urls"`
+	ConnectionString           string            `yaml:"connectionString"`
+	AppointmentPollingTime     int               `yaml:"appointmentPollingTime"`
+	AocationsPollingTime       int               `yaml:"locationsPollingTime"`
+	AppointmentListPollingTime int               `yaml:"appointmentListPollingTime"`
+	LogFileLocation            string            `yaml:"logFileLocation"`
+	ZapDefaultLogLevel         string            `yaml:"zapDefaultLogLevel"`
 }

@@ -5,53 +5,58 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetAndSaveWsLocations() error {
+func GetAndSaveWsLocations() (*[]models.Location, error) {
+
+	sugar := logger.GetInstance()
 
 	var err error
+	config := config.GetInstance()
 
-	resp, err := http.Get(config.Config.Urls["locations"])
+	resp, err := http.Get(config.Urls["locations"])
 	if err != nil {
-		log.Fatal(err)
-		return errors.New("error getting location")
+		sugar.Error(err)
+		return nil, errors.New("error getting location")
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
-		return errors.New("error getting location")
+		sugar.Error(err)
+		return nil, errors.New("error getting location")
 	}
 
 	var locations []models.Location
 
 	err = json.Unmarshal(body, &locations)
 	if err != nil {
-		log.Fatal(err)
-		return errors.New("error unmarshalling location json")
+		sugar.Error(err)
+		return nil, errors.New("error unmarshalling location json")
 	}
 
 	if locations != nil {
 		SaveLocationsDb(&locations)
 
-		return nil
+		return &locations, nil
 	} else {
-		return errors.New("no locations returned")
+		return nil, errors.New("no locations returned")
 	}
 
 }
 
 func SaveLocationsDb(wsLocations *[]models.Location) {
+
+	sugar := logger.GetInstance()
 
 	coll := db.Datastore.Database.Collection("locations")
 
@@ -74,23 +79,23 @@ func SaveLocationsDb(wsLocations *[]models.Location) {
 
 			result, err := coll.InsertOne(context.TODO(), wsLocation)
 			if err != nil {
-				log.Fatal(err)
+				sugar.Error(err)
 			} else {
-				log.Printf("Insert ID: %v\n", result.InsertedID)
+				sugar.Infof("Insert ID: %v\n", result.InsertedID)
 			}
 		} else if err != nil {
-			log.Fatal(err)
+			sugar.Error(err)
 		} else { // Continue on if record exists
 
 			// Convert times
 			dbUpdatedDate, err := time.Parse("2006-01-02T15:04:05", dbLocation.WsLocationLastUpdated)
 			if err != nil {
-				log.Print(err)
+				sugar.Error(err)
 			}
 
 			wsUpdatedDate, err := time.Parse("2006-01-02T15:04:05", wsLocation.WsLocationLastUpdated)
 			if err != nil {
-				log.Print(err)
+				sugar.Error(err)
 			}
 
 			if wsUpdatedDate.After(dbUpdatedDate) {
@@ -99,10 +104,10 @@ func SaveLocationsDb(wsLocations *[]models.Location) {
 
 				result, err := coll.ReplaceOne(context.TODO(), filter, wsLocation)
 				if err != nil {
-					log.Fatal(err)
+					sugar.Error(err)
 				}
 
-				log.Printf("%v documents modified\n", result.ModifiedCount)
+				sugar.Infof("%v documents modified\n", result.ModifiedCount)
 			}
 		}
 

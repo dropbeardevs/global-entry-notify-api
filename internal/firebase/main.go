@@ -2,9 +2,9 @@ package fb
 
 import (
 	"context"
-	"log"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/auth"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
 )
@@ -12,6 +12,8 @@ import (
 var FirebaseApp *firebase.App
 
 func InitFirebaseApp(credsPath *string) {
+
+	sugar := logger.GetInstance()
 
 	// Use a service account
 	ctx := context.Background()
@@ -22,7 +24,7 @@ func InitFirebaseApp(credsPath *string) {
 
 	app, err := firebase.NewApp(ctx, nil, sa)
 	if err != nil {
-		log.Fatalln(err)
+		sugar.Error(err)
 	}
 
 	FirebaseApp = app
