@@ -13,16 +13,45 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/notify"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func PopulateAppointmentsDb(locationList *[]models.Location) error {
+func PollAppointmentList(wg *sync.WaitGroup) error {
+
+	var err error
+	sugar := logger.GetInstance()
+	config := config.GetInstance()
+	ticker := time.NewTicker(time.Duration(config.LocationsPollingTime) * time.Second)
+
+	sugar.Debugln("PollAppointmentList called")
+
+	locationList, err := locations.GetLocations()
+	if err != nil {
+		sugar.Error(err)
+	}
+
+	// Initial run because for loop only starts after ticker duration
+	populateAppointmentsDb(locationList)
+
+	for range ticker.C {
+		populateAppointmentsDb(locationList)
+	}
+
+	wg.Done()
+
+	return nil
+}
+
+func populateAppointmentsDb(locationList *[]models.Location) {
 
 	sugar := logger.GetInstance()
 	coll := db.Datastore.Database.Collection("appointments")
+
+	sugar.Debugln("populateAppointmentsDb called")
 
 	for _, location := range *locationList {
 
@@ -45,24 +74,22 @@ func PopulateAppointmentsDb(locationList *[]models.Location) error {
 			result, err := coll.InsertOne(context.TODO(), appointmentEntry)
 			if err != nil {
 				sugar.Error(err)
-				return err
 			} else {
-				sugar.Infof("DB Result: %v\n", result)
+				sugar.Infof("Appointment LocationId %v inserted. Insert ID: %v", appointmentEntry.LocationId, result.InsertedID)
 			}
 		}
-
 	}
-
-	return nil
-
 }
 
 func PollAppointments(wg *sync.WaitGroup) error {
 
 	sugar := logger.GetInstance()
 	coll := db.Datastore.Database.Collection("appointments")
+	config := config.GetInstance()
 
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(time.Duration(config.AppointmentPollingTime) * time.Second)
+
+	sugar.Debugln("PollAppointments called")
 
 	for range ticker.C {
 
@@ -81,7 +108,7 @@ func PollAppointments(wg *sync.WaitGroup) error {
 				return err
 			}
 
-			wsAppt := GetWsAppointment(dbAppt.LocationId)
+			wsAppt := getWsAppointment(dbAppt.LocationId)
 
 			if wsAppt.StartTimestamp != "" {
 				updateTime := time.Now()
@@ -110,7 +137,7 @@ func PollAppointments(wg *sync.WaitGroup) error {
 						sugar.Error(err)
 					}
 
-					sugar.Infof("LocationId: %v - %v records updated\n", wsAppt.LocationId, result.ModifiedCount)
+					sugar.Infof("LocationId: %v - %v records updated", wsAppt.LocationId, result.ModifiedCount)
 				}
 
 				// Go through all notifications
@@ -126,7 +153,7 @@ func PollAppointments(wg *sync.WaitGroup) error {
 							sugar.Error(err)
 						}
 
-						sugar.Infof("Notification sent: %v\n", notifyResult)
+						sugar.Infof("Notification sent: %v", notifyResult)
 
 						filter := bson.M{
 							"token": notification.Token,
@@ -143,14 +170,14 @@ func PollAppointments(wg *sync.WaitGroup) error {
 							sugar.Error(err)
 						}
 
-						sugar.Infof("%v records updated\n", updateResult.ModifiedCount)
+						sugar.Infof("%v records updated", updateResult.ModifiedCount)
 
 					}
 
-					sugar.Infof("Processed %v notifications\n", j)
+					sugar.Infof("Processed %v notifications", j)
 				}
-				time.Sleep(1 * time.Second)
 			}
+			time.Sleep(2 * time.Second)
 		}
 
 		cursor.Close(context.TODO())
@@ -161,13 +188,15 @@ func PollAppointments(wg *sync.WaitGroup) error {
 	return nil
 }
 
-func GetWsAppointment(locationId int) models.WsAppointment {
+func getWsAppointment(locationId int) models.WsAppointment {
 
 	sugar := logger.GetInstance()
 	config := config.GetInstance()
 	var buf bytes.Buffer
 	msg := config.Urls["appts"]
 	substitute := models.ApptUrlValue{LocationId: locationId}
+
+	sugar.Debugln("getWsAppointment called")
 
 	tmpl, err := template.New("msg").Parse(msg)
 	if err != nil {

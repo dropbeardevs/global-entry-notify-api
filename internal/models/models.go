@@ -7,10 +7,15 @@ type ApptUrlValue struct {
 }
 
 type Notification struct {
-	UserId           string    `bson:"userId"`     // UUID
 	Token            string    `bson:"token"`      // Firebase Cloud Messaging Token
 	TargetDate       time.Time `bson:"targetDate"` // Want to get notifications for appointments before this date
 	LastNotifiedDate time.Time `bson:"lastNotifiedDate"`
+}
+
+type NotificationDetails struct {
+	LocationIds []int     `bson:"locationIds"` // Selected Location IDs
+	Token       string    `bson:"token"`       // Firebase Cloud Messaging Token
+	TargetDate  time.Time `bson:"targetDate"`  // Want to get notifications for appointments before this date
 }
 
 type WsAppointment struct {
@@ -76,7 +81,7 @@ type Configuration struct {
 	Urls                       map[string]string `yaml:"urls"`
 	ConnectionString           string            `yaml:"connectionString"`
 	AppointmentPollingTime     int               `yaml:"appointmentPollingTime"`
-	AocationsPollingTime       int               `yaml:"locationsPollingTime"`
+	LocationsPollingTime       int               `yaml:"locationsPollingTime"`
 	AppointmentListPollingTime int               `yaml:"appointmentListPollingTime"`
 	LogFileLocation            string            `yaml:"logFileLocation"`
 	ZapDefaultLogLevel         string            `yaml:"zapDefaultLogLevel"`

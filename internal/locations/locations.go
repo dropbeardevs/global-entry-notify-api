@@ -3,9 +3,9 @@ package locations
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
@@ -16,24 +16,47 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetAndSaveWsLocations() (*[]models.Location, error) {
+func PollLocations(wg *sync.WaitGroup) error {
 
 	sugar := logger.GetInstance()
+	config := config.GetInstance()
+	ticker := time.NewTicker(time.Duration(config.LocationsPollingTime) * time.Second)
+
+	sugar.Debugln("PollLocations called")
+
+	// Initial run because for loop only starts after ticker duration
+	locationList := getWsLocations()
+	saveLocationsDb(locationList)
+
+	for range ticker.C {
+		locationList := getWsLocations()
+		saveLocationsDb(locationList)
+	}
+
+	wg.Done()
+
+	return nil
+}
+
+func getWsLocations() *[]models.Location {
 
 	var err error
+	sugar := logger.GetInstance()
 	config := config.GetInstance()
+
+	sugar.Debugln("getWsLocations called")
 
 	resp, err := http.Get(config.Urls["locations"])
 	if err != nil {
 		sugar.Error(err)
-		return nil, errors.New("error getting location")
+		return nil
 	}
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		sugar.Error(err)
-		return nil, errors.New("error getting location")
+		return nil
 	}
 
 	var locations []models.Location
@@ -41,24 +64,24 @@ func GetAndSaveWsLocations() (*[]models.Location, error) {
 	err = json.Unmarshal(body, &locations)
 	if err != nil {
 		sugar.Error(err)
-		return nil, errors.New("error unmarshalling location json")
+		return nil
 	}
 
 	if locations != nil {
-		SaveLocationsDb(&locations)
-
-		return &locations, nil
+		sugar.Infof("%v records found", len(locations))
+		return &locations
 	} else {
-		return nil, errors.New("no locations returned")
+		return nil
 	}
-
 }
 
-func SaveLocationsDb(wsLocations *[]models.Location) {
+func saveLocationsDb(wsLocations *[]models.Location) {
 
 	sugar := logger.GetInstance()
 
 	coll := db.Datastore.Database.Collection("locations")
+
+	sugar.Debugln("saveLocationsDb called")
 
 	// ctx := context.Background()
 
@@ -81,7 +104,8 @@ func SaveLocationsDb(wsLocations *[]models.Location) {
 			if err != nil {
 				sugar.Error(err)
 			} else {
-				sugar.Infof("Insert ID: %v\n", result.InsertedID)
+				sugar.Infof("LocationId %v added. Insert ID: %v",
+					wsLocation.LocationId, result.InsertedID)
 			}
 		} else if err != nil {
 			sugar.Error(err)
@@ -107,40 +131,41 @@ func SaveLocationsDb(wsLocations *[]models.Location) {
 					sugar.Error(err)
 				}
 
-				sugar.Infof("%v documents modified\n", result.ModifiedCount)
+				sugar.Infof("Location LocationId %v modified - %v documents modified",
+					wsLocation.LocationId, result.ModifiedCount)
+
 			}
 		}
+	}
+}
 
+func GetLocations() (*[]models.Location, error) {
+	sugar := logger.GetInstance()
+	coll := db.Datastore.Database.Collection("locations")
+
+	var locationList []models.Location
+
+	sugar.Debugln("GetLocations called")
+
+	cursor, err := coll.Find(context.TODO(), bson.M{})
+	if err != nil {
+		sugar.Error(err)
+		return nil, err
 	}
 
-	// for _, location := range locations {
+	defer cursor.Close(context.TODO())
 
-	// 	var dbLocation Locations // This is location from database
-	// 	var err error
+	for cursor.Next(context.TODO()) {
 
-	// 	err := coll.FindOne(context.TODO(), bson.M{"orderNo": orderNo}).Decode(&order)
+		var dbLocation models.Location
 
-	// 	doc, err := db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Get(ctx)
-	// 	if err != nil {
-	// 		// Check if doc exists, otherwise, insert item
-	// 		if status.Code(err) == codes.NotFound {
+		if err = cursor.Decode(&dbLocation); err != nil {
+			sugar.Error(err)
+			return nil, err
+		}
 
-	// 			result, err := coll.InsertOne(context.TODO(), location)
-	// 			if err != nil {
-	// 				log.Fatalln(err)
-	// 			}
-	// 		}
-	// 	}
+		locationList = append(locationList, dbLocation)
+	}
 
-	// 	// If doc exists, unmarshal into Locations struct
-	// 	err = doc.DataTo(&dbLocation)
-	// 	if err != nil {
-	// 		log.Fatalln(err)
-	// 	} else if dbLocation.LastUpdatedDate != location.LastUpdatedDate { // Compare LastUpdatedDate between response and database
-	// 		_, err = db.DbClient.Collection.Doc(strconv.Itoa(location.Id)).Set(ctx, location)
-	// 		if err != nil {
-	// 			log.Fatalln(err)
-	// 		}
-	// 	}
-	// }
+	return &locationList, nil
 }

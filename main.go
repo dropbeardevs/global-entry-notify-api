@@ -4,11 +4,13 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/appts"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
 	fb "bitbucket.org/dropbeardevs/global-entry-notify-api/internal/firebase"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 )
 
 func main() {
@@ -39,7 +41,15 @@ func main() {
 	// appts.PopulateAppointmentsDb(locationList)
 
 	// locations.SetLocations()
-	wg.Add(1)
-	appts.PollAppointments(&wg)
+	wg.Add(3)
+	go locations.PollLocations(&wg)
+
+	time.Sleep(10 * time.Second)
+
+	go appts.PollAppointmentList(&wg)
+
+	time.Sleep(10 * time.Second)
+
+	go appts.PollAppointments(&wg)
 	wg.Wait()
 }

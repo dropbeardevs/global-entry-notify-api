@@ -19,6 +19,7 @@ func GetInstance() *zap.SugaredLogger {
 			zapConfig := zap.NewProductionEncoderConfig()
 			zapConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 			fileEncoder := zapcore.NewJSONEncoder(zapConfig)
+			consoleEncoder := zapcore.NewConsoleEncoder(zapConfig)
 			logFile, _ := os.OpenFile(config.LogFileLocation, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			writer := zapcore.AddSync(logFile)
 
@@ -33,6 +34,7 @@ func GetInstance() *zap.SugaredLogger {
 
 			core := zapcore.NewTee(
 				zapcore.NewCore(fileEncoder, writer, defaultLogLevel),
+				zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
 			)
 			sugar = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel)).Sugar()
 			sugar.Debug("Zap Logger Initialized")

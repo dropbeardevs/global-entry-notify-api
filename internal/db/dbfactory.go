@@ -60,5 +60,5 @@ func InitDatastore() {
 	if err != nil {
 		sugar.Error(err)
 	}
-	sugar.Infof("Databases: %v\n", databases)
+	sugar.Infof("Databases: %v", databases)
 }
