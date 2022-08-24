@@ -20,7 +20,6 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0)
 
 	sugar.Infof("Running file: %v", filename)
-
 }
 
 func main() {
