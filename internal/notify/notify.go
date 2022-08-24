@@ -17,7 +17,7 @@ func SendNotification(token string) (string, error) {
 	return result, nil
 }
 
-func AddNotification(notificationDetails models.NotificationDetails) error {
+func AddNotificationDetails(notificationDetails models.NotificationDetails) error {
 
 	sugar := logger.GetInstance()
 	coll := db.Datastore.Database.Collection("appointments")

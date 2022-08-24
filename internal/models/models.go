@@ -25,7 +25,7 @@ type WsAppointment struct {
 type DbAppointment struct {
 	LocationId       int            `bson:"locationId"`
 	Date             time.Time      `bson:"date"`
-	NotificationList []Notification `bson:"notificationsList"`
+	NotificationList []Notification `bson:"notificationList"`
 	LastUpdated      time.Time      `bson:"lastUpdated"`
 }
 
