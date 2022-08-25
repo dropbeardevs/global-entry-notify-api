@@ -7,15 +7,11 @@ type ApptUrlValue struct {
 }
 
 type Notification struct {
-	Token            string    `bson:"token"`      // Firebase Cloud Messaging Token
-	TargetDate       time.Time `bson:"targetDate"` // Want to get notifications for appointments before this date
+	UserId           string    `bson:"userId"`      // UUID
+	LocationIds      []int     `bson:"locationIds"` // Selected Location IDs
+	Token            string    `bson:"token"`       // Firebase Cloud Messaging Token
+	TargetDate       time.Time `bson:"targetDate"`  // Want to get notifications for appointments before this date
 	LastNotifiedDate time.Time `bson:"lastNotifiedDate"`
-}
-
-type NotificationDetails struct {
-	LocationIds []int     `bson:"locationIds"` // Selected Location IDs
-	Token       string    `bson:"token"`       // Firebase Cloud Messaging Token
-	TargetDate  time.Time `bson:"targetDate"`  // Want to get notifications for appointments before this date
 }
 
 type WsAppointment struct {
@@ -23,10 +19,9 @@ type WsAppointment struct {
 	StartTimestamp string `json:"startTimestamp"`
 }
 type DbAppointment struct {
-	LocationId       int            `bson:"locationId"`
-	Date             time.Time      `bson:"date"`
-	NotificationList []Notification `bson:"notificationList"`
-	LastUpdated      time.Time      `bson:"lastUpdated"`
+	LocationId  int       `bson:"locationId"`
+	Date        time.Time `bson:"date"`
+	LastUpdated time.Time `bson:"lastUpdated"`
 }
 
 type Location struct {

@@ -16,10 +16,10 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/notify"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// Refreshes list of appointments based on locations
 func PollAppointmentList(wg *sync.WaitGroup) error {
 
 	var err error
@@ -81,6 +81,7 @@ func populateAppointmentsDb(locationList *[]models.Location) {
 	}
 }
 
+// Get individual appointments from each location
 func PollAppointments(wg *sync.WaitGroup) error {
 
 	sugar := logger.GetInstance()
@@ -140,42 +141,6 @@ func PollAppointments(wg *sync.WaitGroup) error {
 					sugar.Infof("LocationId: %v - %v records updated", wsAppt.LocationId, result.ModifiedCount)
 				}
 
-				// Go through all notifications
-				for j, notification := range dbAppt.NotificationList {
-
-					// If returned appointment date is before target date
-					// And the last notification is not equal to LastUpdated
-					if (wsApptDate.Before(notification.TargetDate)) &&
-						(dbAppt.LastUpdated != notification.LastNotifiedDate) {
-
-						notifyResult, err := notify.SendNotification(notification.Token)
-						if err != nil {
-							sugar.Error(err)
-						}
-
-						sugar.Infof("Notification sent: %v", notifyResult)
-
-						filter := bson.M{
-							"token": notification.Token,
-						}
-						// Update notification record
-						update := bson.M{
-							"$set": bson.M{
-								"DbAppointment.Notification.lastNotifiedDate": updateTime,
-							},
-						}
-
-						updateResult, err := coll.UpdateOne(context.TODO(), filter, update)
-						if err != nil {
-							sugar.Error(err)
-						}
-
-						sugar.Infof("%v records updated", updateResult.ModifiedCount)
-
-					}
-
-					sugar.Infof("Processed %v notifications", j)
-				}
 			}
 			time.Sleep(2 * time.Second)
 		}

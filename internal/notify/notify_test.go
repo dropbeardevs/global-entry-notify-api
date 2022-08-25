@@ -39,19 +39,20 @@ func TestAddNotificationDetails(t *testing.T) {
 	date, _ := time.Parse("2006-01-02", "2022-09-31")
 	var err error
 
-	notification := models.NotificationDetails{
+	notification := models.Notification{
+		UserId:      "3D05A979-35F9-4A40-B075-444DEB63537A",
 		LocationIds: []int{5001, 5002, 5003},
 		Token:       uuid.NewString(),
 		TargetDate:  date,
 	}
 
 	// Execute function
-	err = AddNotificationDetails(notification)
+	err = UpdateNotification(notification)
 
 	if err != nil {
-		t.Fatalf("AddNotificationDetails(%v) = %v, want match for %t, nil\n", notification, err, want)
+		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification, err, want)
 	} else {
-		log.Printf("AddNotificationDetails(%v) Success\n", notification)
+		log.Printf("UpdateNotification(%v) Success\n", notification)
 	}
 
 }
