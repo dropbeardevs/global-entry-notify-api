@@ -78,6 +78,7 @@ type Configuration struct {
 	AppointmentPollingTime     int               `yaml:"appointmentPollingTime"`
 	LocationsPollingTime       int               `yaml:"locationsPollingTime"`
 	AppointmentListPollingTime int               `yaml:"appointmentListPollingTime"`
+	NotificationPollingTime    int               `yaml:"notificationPollingTime"`
 	LogFileLocation            string            `yaml:"logFileLocation"`
 	ZapDefaultLogLevel         string            `yaml:"zapDefaultLogLevel"`
 }
