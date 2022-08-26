@@ -11,6 +11,7 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -146,7 +147,158 @@ func sendNotification(token string) (string, error) {
 	return "Success", nil
 }
 
-func UpdateNotification(notification models.Notification) error {
+func UpdateNotificationToken(userId string, token string) error {
+
+	sugar := logger.GetInstance()
+	sugar.Debugln("UpdateNotificationToken called")
+
+	coll := db.Datastore.Database.Collection("notifications")
+	opts := options.Update().SetUpsert(true)
+
+	filter := bson.M{
+		"userId": userId,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"token":       token,
+			"lastUpdated": time.Now(),
+		},
+	}
+
+	result, err := coll.UpdateOne(context.TODO(), filter, update, opts)
+	if err != nil {
+		sugar.Error(err)
+	} else if result.ModifiedCount > 0 {
+		sugar.Infof("Token updated for user %v, token: %v", userId, token)
+	} else if result.UpsertedCount > 0 {
+		sugar.Infof("Token %v added for user %v, _id: %v", token, userId, result.UpsertedID)
+	} else {
+		sugar.Infoln("No documents added/modified")
+		return errors.New("no documents added/modified")
+	}
+
+	return nil
+
+}
+
+func UpdateNotificationDetails(userId string, notificationDetails models.NotificationDetails) error {
+
+	sugar := logger.GetInstance()
+	sugar.Debugln("UpdateNotificationDetails called")
+
+	coll := db.Datastore.Database.Collection("notifications")
+	opts := options.Update().SetUpsert(true)
+	var filter bson.M
+
+	filter = bson.M{
+		"userId":                         userId,
+		"notificationDetails.locationId": notificationDetails.LocationId,
+	}
+
+	var result bson.M
+	err := coll.FindOne(context.TODO(), filter).Decode(&result)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+
+			filter = bson.M{
+				"userId": userId,
+			}
+
+			update := bson.M{
+				"$push": bson.M{
+					"notificationDetails": notificationDetails,
+				},
+				"$set": bson.M{
+					"lastUpdated": time.Now(),
+				},
+			}
+
+			updateResult, err := coll.UpdateOne(context.TODO(), filter, update, opts)
+			if err != nil {
+				sugar.Error(err)
+				return err
+			} else if updateResult.ModifiedCount > 0 {
+				sugar.Infof("Notification Details updated for user %v", userId)
+			} else if updateResult.UpsertedCount > 0 {
+				sugar.Infof("Notification Details added for user %v, _id: %v", userId, updateResult.UpsertedID)
+			} else {
+				sugar.Infoln("No documents added/modified")
+				return errors.New("no documents added/modified")
+			}
+		} else {
+			return err
+		}
+	} else {
+
+		update := bson.M{
+			"$set": bson.M{
+				"notificationDetails.$": notificationDetails,
+				"lastUpdated":           time.Now(),
+			},
+		}
+
+		updateResult, err := coll.UpdateOne(context.TODO(), filter, update, opts)
+		if err != nil {
+			sugar.Error(err)
+			return err
+		} else if updateResult.ModifiedCount > 0 {
+			sugar.Infof("Notification Details updated for user %v", userId)
+		} else if updateResult.UpsertedCount > 0 {
+			sugar.Infof("Notification Details added for user %v, _id: %v", userId, updateResult.UpsertedID)
+		} else {
+			sugar.Infoln("No documents added/modified")
+			return errors.New("no documents added/modified")
+		}
+	}
+
+	return nil
+
+}
+
+func DeleteNotificationDetails(userId string, locationId int) error {
+
+	sugar := logger.GetInstance()
+	sugar.Debugln("DeleteNotificationDetails called")
+
+	coll := db.Datastore.Database.Collection("notifications")
+	opts := options.Update().SetUpsert(false)
+
+	filter := bson.M{
+		"userId":                         userId,
+		"notificationDetails.locationId": locationId,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"notificationDetails": bson.M{
+				"locationId": locationId,
+			},
+		},
+		"$set": bson.M{
+			"lastUpdated": time.Now(),
+		},
+	}
+
+	updateResult, err := coll.UpdateMany(context.TODO(), filter, update, opts)
+	if err != nil {
+		sugar.Error(err)
+		return err
+	} else if updateResult.ModifiedCount > 0 {
+		sugar.Infof("Notification Details updated for user %v", userId)
+	} else if updateResult.UpsertedCount > 0 {
+		sugar.Infof("Notification Details added for user %v, _id: %v", userId, updateResult.UpsertedID)
+	} else {
+		sugar.Infoln("No documents added/modified")
+		return errors.New("no documents added/modified")
+	}
+
+	return nil
+
+}
+
+func UpdateNotification(userId string, token string) error {
 
 	sugar := logger.GetInstance()
 	sugar.Debugln("UpdateNotification called")
@@ -155,14 +307,13 @@ func UpdateNotification(notification models.Notification) error {
 	opts := options.Update().SetUpsert(true)
 
 	filter := bson.M{
-		"userId": notification.UserId,
+		"userId": userId,
 	}
 
 	update := bson.M{
 		"$set": bson.M{
-			"userId":      notification.UserId,
-			"locationIds": notification.LocationIds,
-			"token":       notification.Token,
+			"userId": userId,
+			"token":  token,
 		},
 	}
 
@@ -170,9 +321,9 @@ func UpdateNotification(notification models.Notification) error {
 	if err != nil {
 		sugar.Error(err)
 	} else if result.ModifiedCount > 0 {
-		sugar.Infof("Notifications updated for user %v, %v records updated", notification.UserId, result.ModifiedCount)
+		sugar.Infof("Notifications updated for user %v, %v records updated", userId, result.ModifiedCount)
 	} else if result.UpsertedCount > 0 {
-		sugar.Infof("Notifications added for user %v, _id: %v", notification.UserId, result.UpsertedID)
+		sugar.Infof("Notifications added for user %v, _id: %v", userId, result.UpsertedID)
 	} else {
 		sugar.Infoln("No documents added/modified")
 		return errors.New("no documents added/modified")

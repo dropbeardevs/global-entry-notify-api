@@ -31,55 +31,131 @@ func init() {
 	sugar.Infof("Running folder: %v", dir)
 }
 
-func TestAddNotificationDetails(t *testing.T) {
+func TestUpdateNotificationDetails(t *testing.T) {
 
 	// Bootstrap code
 	sugar := logger.GetInstance()
-	want := true
-	date, _ := time.Parse("2006-01-02", "2022-09-31")
 	var err error
 
-	notification := models.Notification{
-		UserId:      "3D05A979-35F9-4A40-B075-444DEB63537A",
-		LocationIds: []int{5001, 5002, 5003},
-		Token:       uuid.NewString(),
-		TargetDate:  date,
-	}
+	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
 
-	notification2 := models.Notification{
-		UserId:      "567D334A-62FA-456C-9065-6E1DD7FED0A1",
-		LocationIds: []int{5180},
-		Token:       uuid.NewString(),
-		TargetDate:  date,
-	}
+	notificationDetails := models.NotificationDetails{LocationId: 5001, TargetDate: time.Now()}
 
-	notification3 := models.Notification{
-		UserId:      "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40",
-		LocationIds: []int{16461, 8120, 5446},
-		Token:       uuid.NewString(),
-		TargetDate:  date,
-	}
+	notificationDetails2 := models.NotificationDetails{LocationId: 5180, TargetDate: time.Now()}
+
+	notificationDetails3 := models.NotificationDetails{LocationId: 16461, TargetDate: time.Now()}
 
 	// Execute function
-	err = UpdateNotification(notification)
+	err = UpdateNotificationDetails(userId, notificationDetails)
 	if err != nil {
-		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification, err, want)
+		t.Fatalf("UpdateNotificationDetails(%v) = %v, want match for nil\n", userId, err)
 	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+		sugar.Infof("UpdateNotificationDetails(%v) Success\n", userId)
 	}
 
-	err = UpdateNotification(notification2)
+	err = UpdateNotificationDetails(userId, notificationDetails2)
 	if err != nil {
-		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification2, err, want)
+		t.Fatalf("UpdateNotificationDetails(%v) = %v, want match for nil\n", userId, err)
 	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+		sugar.Infof("UpdateNotificationDetails(%v) Success\n", userId)
 	}
 
-	err = UpdateNotification(notification3)
+	err = UpdateNotificationDetails(userId, notificationDetails3)
 	if err != nil {
-		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification3, err, want)
+		t.Fatalf("UpdateNotificationDetails(%v) = %v, want match for nil\n", userId, err)
 	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+		sugar.Infof("UpdateNotificationDetails(%v) Success\n", userId)
+	}
+
+}
+
+func TestDeleteNotificationDetails(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+	var err error
+
+	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
+	locationId := 5001
+
+	// Execute function
+	err = DeleteNotificationDetails(userId, locationId)
+	if err != nil {
+		t.Fatalf("DeleteNotificationDetails(%v, %v) = %v, want match for nil\n", userId, locationId, err)
+	} else {
+		sugar.Infof("DeleteNotificationDetails(%v, %v) Success\n", userId, locationId)
+	}
+}
+
+func TestUpdateNotificationToken(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+	var err error
+
+	userId1 := "3D05A979-35F9-4A40-B075-444DEB63537A"
+	userId2 := "567D334A-62FA-456C-9065-6E1DD7FED0A1"
+	userId3 := "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40"
+
+	// Execute function
+	err = UpdateNotificationToken(userId1, uuid.NewString())
+	if err != nil {
+		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId1, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v) Success\n", userId1)
+	}
+
+	err = UpdateNotificationToken(userId2, uuid.NewString())
+	if err != nil {
+		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId2, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v) Success\n", userId2)
+	}
+
+	err = UpdateNotificationToken(userId3, uuid.NewString())
+	if err != nil {
+		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId3, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v) Success\n", userId3)
+	}
+
+}
+
+func TestUpdateNotification(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+	var err error
+
+	userId1 := "3D05A979-35F9-4A40-B075-444DEB63537A"
+	token1 := uuid.NewString()
+
+	userId2 := "567D334A-62FA-456C-9065-6E1DD7FED0A1"
+	token2 := uuid.NewString()
+
+	userId3 := "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40"
+	token3 := uuid.NewString()
+
+	// Execute function
+	err = UpdateNotification(userId1, token1)
+	if err != nil {
+		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId1, token1, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId1, token1)
+	}
+
+	err = UpdateNotification(userId2, token2)
+	if err != nil {
+		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId2, token2, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId2, token2)
+	}
+
+	err = UpdateNotification(userId3, token3)
+	if err != nil {
+		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId3, token3, err)
+	} else {
+		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId3, token2)
 	}
 
 }
