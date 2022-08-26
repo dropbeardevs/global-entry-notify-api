@@ -38,12 +38,13 @@ func TestUpdateNotificationDetails(t *testing.T) {
 	var err error
 
 	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
+	targetDate, _ := time.Parse("2006-01-02", "2023-12-31")
 
-	notificationDetails := models.NotificationDetails{LocationId: 5001, TargetDate: time.Now()}
+	notificationDetails := models.NotificationDetails{LocationId: 5001, TargetDate: targetDate}
 
-	notificationDetails2 := models.NotificationDetails{LocationId: 5180, TargetDate: time.Now()}
+	notificationDetails2 := models.NotificationDetails{LocationId: 5180, TargetDate: targetDate}
 
-	notificationDetails3 := models.NotificationDetails{LocationId: 16461, TargetDate: time.Now()}
+	notificationDetails3 := models.NotificationDetails{LocationId: 16461, TargetDate: targetDate}
 
 	// Execute function
 	err = UpdateNotificationDetails(userId, notificationDetails)

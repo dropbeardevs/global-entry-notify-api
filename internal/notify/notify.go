@@ -61,7 +61,7 @@ func getDbNotifications() error {
 			return err
 		}
 
-		filter := bson.M{"locationIds": appt.LocationId}
+		filter := bson.M{"notificationDetails.locationId": appt.LocationId}
 
 		// Get notifications that match LocationId
 		cursorNotifs, err := collNotifs.Find(context.TODO(), filter)
@@ -83,20 +83,47 @@ func getDbNotifications() error {
 			sugar.Infof("User: %v", notif.UserId)
 			sugar.Infof("Token: %v", notif.Token)
 
-			// If returned appointment date is before target date
-			// And the last notification is not equal to LastUpdated
-			// if (wsApptDate.Before(notification.TargetDate)) &&
-			// 	(dbAppt.LastUpdated != notification.LastNotifiedDate) {
-			// }
+			for _, notifDetail := range notif.NotificationDetails {
 
-			result, err := sendNotification(notif.Token)
-			if err != nil {
-				sugar.Error(err)
-				return err
-			}
+				// Find notification detail matching location Id
+				if notifDetail.LocationId == appt.LocationId {
 
-			if result == "Success" {
+					// If returned appointment date is before target date
+					// And appointment dates are different
+					if (appt.Date.Before(notifDetail.TargetDate)) &&
+						(appt.Date != notifDetail.AppointmentDate) {
 
+						result, err := sendNotification(notif.Token)
+						if err != nil {
+							sugar.Error(err)
+							return err
+						}
+
+						if result == "Success" {
+
+							filter := bson.M{"notificationDetails.locationId": appt.LocationId}
+
+							update := bson.M{
+								"$set": bson.M{
+									"notificationDetails.$.appointmentDate":  appt.Date,
+									"notificationDetails.$.lastNotifiedDate": time.Now(),
+								},
+							}
+
+							result, err := collNotifs.UpdateOne(context.TODO(), filter, update)
+							if err != nil {
+								sugar.Error(err)
+							} else if result.ModifiedCount > 0 {
+								sugar.Infof("NotificationDetail updated for user %v", notif.UserId)
+							} else if result.UpsertedCount > 0 {
+								sugar.Infof("NotificationDetail added for user %v, _id: %v", notif.UserId, result.UpsertedID)
+							} else {
+								sugar.Infoln("No documents added/modified")
+								return errors.New("no documents added/modified")
+							}
+						}
+					}
+				}
 			}
 		}
 
