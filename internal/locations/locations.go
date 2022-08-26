@@ -147,7 +147,15 @@ func GetLocations() (*[]models.Location, error) {
 
 	sugar.Debugln("GetLocations called")
 
-	cursor, err := coll.Find(context.TODO(), bson.M{})
+	filter := bson.M{
+		"operational": true,
+		"inviteOnly":  false,
+		"services": bson.M{
+			"name": "Global Entry",
+		},
+	}
+
+	cursor, err := coll.Find(context.TODO(), filter)
 	if err != nil {
 		sugar.Error(err)
 		return nil, err

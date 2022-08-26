@@ -324,36 +324,3 @@ func DeleteNotificationDetails(userId string, locationId int) error {
 	return nil
 
 }
-
-func UpdateNotification(userId string, token string) error {
-
-	sugar := logger.GetInstance()
-	sugar.Debugln("UpdateNotification called")
-
-	coll := db.Datastore.Database.Collection("notifications")
-	opts := options.Update().SetUpsert(true)
-
-	filter := bson.M{
-		"userId": userId,
-	}
-
-	update := bson.M{
-		"$set": bson.M{
-			"userId": userId,
-			"token":  token,
-		},
-	}
-
-	result, err := coll.UpdateOne(context.TODO(), filter, update, opts)
-	if err != nil {
-		sugar.Error(err)
-	} else if result.ModifiedCount > 0 {
-		sugar.Infof("Notifications updated for user %v, %v records updated", userId, result.ModifiedCount)
-	} else if result.UpsertedCount > 0 {
-		sugar.Infof("Notifications added for user %v, _id: %v", userId, result.UpsertedID)
-	} else {
-		sugar.Infoln("No documents added/modified")
-		return errors.New("no documents added/modified")
-	}
-	return nil
-}

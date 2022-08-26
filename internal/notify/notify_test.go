@@ -122,45 +122,6 @@ func TestUpdateNotificationToken(t *testing.T) {
 
 }
 
-func TestUpdateNotification(t *testing.T) {
-
-	// Bootstrap code
-	sugar := logger.GetInstance()
-	var err error
-
-	userId1 := "3D05A979-35F9-4A40-B075-444DEB63537A"
-	token1 := uuid.NewString()
-
-	userId2 := "567D334A-62FA-456C-9065-6E1DD7FED0A1"
-	token2 := uuid.NewString()
-
-	userId3 := "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40"
-	token3 := uuid.NewString()
-
-	// Execute function
-	err = UpdateNotification(userId1, token1)
-	if err != nil {
-		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId1, token1, err)
-	} else {
-		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId1, token1)
-	}
-
-	err = UpdateNotification(userId2, token2)
-	if err != nil {
-		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId2, token2, err)
-	} else {
-		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId2, token2)
-	}
-
-	err = UpdateNotification(userId3, token3)
-	if err != nil {
-		t.Fatalf("UpdateNotification(%v, %v) = %v, want nil", userId3, token3, err)
-	} else {
-		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId3, token2)
-	}
-
-}
-
 func TestGetDbNotifications(t *testing.T) {
 
 	// Bootstrap code

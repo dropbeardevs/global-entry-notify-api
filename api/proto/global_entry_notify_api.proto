@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package global_entry_notify_api;
+
+option go_package = "bitbucket.org/dropbeardevs/global-entry-notify-api/proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message ErrorRp { string error = 1; }
+
+message UpdateNotificationTokenRq {
+  string userId = 1;
+  string token = 2;
+}
+
+message UpdateNotificationDetailsRq {
+  string userId = 1;
+  NotificationDetails notificationDetails = 2;
+}
+
+message DeleteNotificationDetailsRq {
+  string userId = 1;
+  int32 locationId = 2;
+}
+
+message NotificationDetails {
+  string locationId = 1;
+  google.protobuf.Timestamp targetDate = 2;
+  google.protobuf.Timestamp appointmentDate = 3;
+  google.protobuf.Timestamp lastNotifiedDate = 4;
+}
+
+message LocationsRp {
+  int32 locationId = 1;
+  string name = 2;
+  string address = 3;
+  string addressAdditional = 4;
+  string city = 5;
+  string state = 6;
+  string postalCode = 7;
+  string countryCode = 8;
+  string timezoneData = 9;
+  string phoneNumber = 10;
+  string phoneAreaCode = 11;
+  string phoneCountryCode = 12;
+  string Directions = 13;
+  string Notes = 14;
+}
+
+service GlobalEntryNotifyService {
+  rpc UpdateNotificationToken(UpdateNotificationTokenRq) returns (ErrorRp);
+  rpc UpdateNotificationDetails(UpdateNotificationDetailsRq) returns (ErrorRp);
+  rpc DeleteNotificationDetails(DeleteNotificationDetailsRq) returns (ErrorRp);
+  rpc GetLocations(google.protobuf.Empty) returns (LocationsRp);
+}

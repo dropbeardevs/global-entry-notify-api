@@ -65,6 +65,23 @@ type Location struct {
 	LastUpdated time.Time `bson:"lastUpdated"`
 }
 
+type LocationRs struct {
+	LocationId        int
+	Name              string
+	Address           string
+	AddressAdditional string
+	City              string
+	State             string
+	PostalCode        string
+	CountryCode       string
+	TimezoneData      string
+	PhoneNumber       string
+	PhoneAreaCode     string
+	PhoneCountryCode  string
+	Directions        string
+	Notes             string
+}
+
 type Creds struct {
 	Type                    string `json:"type"`
 	ProjectId               string `json:"project_id"`
