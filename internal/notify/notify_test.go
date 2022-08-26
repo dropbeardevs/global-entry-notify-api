@@ -1,7 +1,6 @@
 package notify
 
 import (
-	"log"
 	"os"
 	"path"
 	"runtime"
@@ -35,6 +34,7 @@ func init() {
 func TestAddNotificationDetails(t *testing.T) {
 
 	// Bootstrap code
+	sugar := logger.GetInstance()
 	want := true
 	date, _ := time.Parse("2006-01-02", "2022-09-31")
 	var err error
@@ -46,13 +46,56 @@ func TestAddNotificationDetails(t *testing.T) {
 		TargetDate:  date,
 	}
 
+	notification2 := models.Notification{
+		UserId:      "567D334A-62FA-456C-9065-6E1DD7FED0A1",
+		LocationIds: []int{5180},
+		Token:       uuid.NewString(),
+		TargetDate:  date,
+	}
+
+	notification3 := models.Notification{
+		UserId:      "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40",
+		LocationIds: []int{16461, 8120, 5446},
+		Token:       uuid.NewString(),
+		TargetDate:  date,
+	}
+
 	// Execute function
 	err = UpdateNotification(notification)
-
 	if err != nil {
 		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification, err, want)
 	} else {
-		log.Printf("UpdateNotification(%v) Success\n", notification)
+		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+	}
+
+	err = UpdateNotification(notification2)
+	if err != nil {
+		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification2, err, want)
+	} else {
+		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+	}
+
+	err = UpdateNotification(notification3)
+	if err != nil {
+		t.Fatalf("UpdateNotification(%v) = %v, want match for %t, nil\n", notification3, err, want)
+	} else {
+		sugar.Infof("UpdateNotification(%v) Success\n", notification)
+	}
+
+}
+
+func TestGetDbNotifications(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+
+	// Execute function
+	err := getDbNotifications()
+
+	if err != nil {
+		t.Fatalf("getDbNotifications() = %v", err)
+	} else {
+		sugar.Infof("getDbNotifications() Success\n")
 	}
 
 }

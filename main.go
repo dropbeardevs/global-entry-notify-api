@@ -9,6 +9,7 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/notify"
 )
 
 func init() {
@@ -26,7 +27,7 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(4)
 
 	go locations.PollLocations(&wg)
 
@@ -37,5 +38,9 @@ func main() {
 	time.Sleep(10 * time.Second)
 
 	go appts.PollAppointments(&wg)
+
+	time.Sleep(10 * time.Second)
+
+	go notify.PollNotifications(&wg)
 	wg.Wait()
 }
