@@ -85,7 +85,6 @@ func populateAppointmentsDb(locationList *[]models.Location) {
 func PollAppointments(wg *sync.WaitGroup) error {
 
 	sugar := logger.GetInstance()
-	coll := db.GetInstance().Database.Collection("appointments")
 	config := config.GetInstance()
 
 	ticker := time.NewTicker(time.Duration(config.AppointmentPollingTime) * time.Second)
@@ -93,62 +92,75 @@ func PollAppointments(wg *sync.WaitGroup) error {
 	sugar.Debugln("PollAppointments called")
 
 	for range ticker.C {
+		getDbAppointments()
+	}
 
-		cursor, err := coll.Find(context.TODO(), bson.M{})
-		if err != nil {
+	wg.Done()
+
+	return nil
+}
+
+func getDbAppointments() error {
+
+	sugar := logger.GetInstance()
+	coll := db.GetInstance().Database.Collection("appointments")
+
+	cursor, err := coll.Find(context.TODO(), bson.M{})
+	if err != nil {
+		sugar.Error(err)
+		return err
+	}
+
+	for cursor.Next(context.TODO()) {
+
+		var dbAppt models.DbAppointment
+		var wsApptDate time.Time
+
+		if err = cursor.Decode(&dbAppt); err != nil {
 			sugar.Error(err)
 			return err
 		}
 
-		for cursor.Next(context.TODO()) {
+		wsAppt := getWsAppointment(dbAppt.LocationId)
 
-			var dbAppt models.DbAppointment
-
-			if err = cursor.Decode(&dbAppt); err != nil {
+		if wsAppt.StartTimestamp == "" {
+			// If blank, save as time zero
+			wsApptDate = time.Time{}
+		} else {
+			wsApptDate, err = dateStringToDate(wsAppt.StartTimestamp)
+			if err != nil {
 				sugar.Error(err)
-				return err
 			}
-
-			wsAppt := getWsAppointment(dbAppt.LocationId)
-
-			if wsAppt.StartTimestamp != "" {
-				updateTime := time.Now()
-
-				wsApptDate, err := dateStringToDate(wsAppt.StartTimestamp)
-				if err != nil {
-					sugar.Error(err)
-				}
-
-				// If there are changes to the appointment date, update document
-				if wsApptDate != dbAppt.Date {
-
-					filter := bson.M{
-						"locationId": dbAppt.LocationId,
-					}
-
-					update := bson.M{
-						"$set": bson.M{
-							"date":        wsApptDate,
-							"lastUpdated": updateTime,
-						},
-					}
-
-					result, err := coll.UpdateOne(context.TODO(), filter, update)
-					if err != nil {
-						sugar.Error(err)
-					}
-
-					sugar.Infof("LocationId: %v - %v records updated", wsAppt.LocationId, result.ModifiedCount)
-				}
-
-			}
-			time.Sleep(2 * time.Second)
 		}
 
-		cursor.Close(context.TODO())
+		updateTime := time.Now()
+
+		// If there are changes to the appointment date, update document
+		if wsApptDate != dbAppt.Date {
+
+			filter := bson.M{
+				"locationId": dbAppt.LocationId,
+			}
+
+			update := bson.M{
+				"$set": bson.M{
+					"date":        wsApptDate,
+					"lastUpdated": updateTime,
+				},
+			}
+
+			result, err := coll.UpdateOne(context.TODO(), filter, update)
+			if err != nil {
+				sugar.Error(err)
+			}
+
+			sugar.Infof("LocationId: %v - %v records updated", dbAppt.LocationId, result.ModifiedCount)
+		}
+
+		time.Sleep(2 * time.Second)
 	}
 
-	wg.Done()
+	cursor.Close(context.TODO())
 
 	return nil
 }
