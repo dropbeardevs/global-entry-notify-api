@@ -8,8 +8,10 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	fb "bitbucket.org/dropbeardevs/global-entry-notify-api/internal/firebase"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
+	"firebase.google.com/go/messaging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -170,6 +172,31 @@ func sendNotification(token string) (string, error) {
 
 	sugar := logger.GetInstance()
 	sugar.Infoln("sendNotification called")
+
+	// Obtain a messaging.Client from the App.
+	ctx := context.Background()
+	client, err := fb.FirebaseApp.Messaging(ctx)
+	if err != nil {
+		sugar.Errorf("error getting Messaging client: %v", err)
+	}
+
+	message := &messaging.Message{
+		Data: map[string]string{
+			"score": "850",
+			"time":  "2:45",
+		},
+		Token: token,
+	}
+
+	// Send a message to the device corresponding to the provided
+	// registration token.
+	response, err := client.Send(ctx, message)
+	if err != nil {
+		sugar.Errorln(err)
+	}
+
+	// Response is a message ID string.
+	sugar.Infof("Successfully sent message: %v", response)
 
 	return "Success", nil
 }
