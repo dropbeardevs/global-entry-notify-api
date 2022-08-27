@@ -49,7 +49,7 @@ func PollAppointmentList(wg *sync.WaitGroup) error {
 func populateAppointmentsDb(locationList *[]models.Location) {
 
 	sugar := logger.GetInstance()
-	coll := db.Datastore.Database.Collection("appointments")
+	coll := db.GetInstance().Database.Collection("appointments")
 
 	sugar.Debugln("populateAppointmentsDb called")
 
@@ -85,7 +85,7 @@ func populateAppointmentsDb(locationList *[]models.Location) {
 func PollAppointments(wg *sync.WaitGroup) error {
 
 	sugar := logger.GetInstance()
-	coll := db.Datastore.Database.Collection("appointments")
+	coll := db.GetInstance().Database.Collection("appointments")
 	config := config.GetInstance()
 
 	ticker := time.NewTicker(time.Duration(config.AppointmentPollingTime) * time.Second)

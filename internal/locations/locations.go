@@ -79,7 +79,7 @@ func saveLocationsDb(wsLocations *[]models.Location) {
 
 	sugar := logger.GetInstance()
 
-	coll := db.Datastore.Database.Collection("locations")
+	coll := db.GetInstance().Database.Collection("locations")
 
 	sugar.Debugln("saveLocationsDb called")
 
@@ -141,7 +141,7 @@ func saveLocationsDb(wsLocations *[]models.Location) {
 
 func GetLocations() (*[]models.Location, error) {
 	sugar := logger.GetInstance()
-	coll := db.Datastore.Database.Collection("locations")
+	coll := db.GetInstance().Database.Collection("locations")
 
 	var locationList []models.Location
 

@@ -42,8 +42,8 @@ func PollNotifications(wg *sync.WaitGroup) error {
 func getDbNotifications() error {
 
 	sugar := logger.GetInstance()
-	collAppts := db.Datastore.Database.Collection("appointments")
-	collNotifs := db.Datastore.Database.Collection("notifications")
+	collAppts := db.GetInstance().Database.Collection("appointments")
+	collNotifs := db.GetInstance().Database.Collection("notifications")
 
 	// Get all appointments
 	cursorAppts, err := collAppts.Find(context.TODO(), bson.M{})
@@ -179,7 +179,7 @@ func UpdateNotificationToken(userId string, token string) error {
 	sugar := logger.GetInstance()
 	sugar.Debugln("UpdateNotificationToken called")
 
-	coll := db.Datastore.Database.Collection("notifications")
+	coll := db.GetInstance().Database.Collection("notifications")
 	opts := options.Update().SetUpsert(true)
 
 	filter := bson.M{
@@ -214,7 +214,7 @@ func UpdateNotificationDetails(userId string, notificationDetails models.Notific
 	sugar := logger.GetInstance()
 	sugar.Debugln("UpdateNotificationDetails called")
 
-	coll := db.Datastore.Database.Collection("notifications")
+	coll := db.GetInstance().Database.Collection("notifications")
 	opts := options.Update().SetUpsert(true)
 	var filter bson.M
 
@@ -289,7 +289,7 @@ func DeleteNotificationDetails(userId string, locationId int) error {
 	sugar := logger.GetInstance()
 	sugar.Debugln("DeleteNotificationDetails called")
 
-	coll := db.Datastore.Database.Collection("notifications")
+	coll := db.GetInstance().Database.Collection("notifications")
 	opts := options.Update().SetUpsert(false)
 
 	filter := bson.M{
@@ -330,7 +330,7 @@ func GetNotificationDetails(userId string) ([]models.NotificationDetails, error)
 	sugar := logger.GetInstance()
 	sugar.Debugln("GetNotificationDetails called")
 
-	coll := db.Datastore.Database.Collection("notifications")
+	coll := db.GetInstance().Database.Collection("notifications")
 
 	var notif models.Notification
 

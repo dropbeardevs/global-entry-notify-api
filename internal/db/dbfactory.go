@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"os"
+	"sync"
 	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
@@ -13,22 +14,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var Datastore *MongoDatastore // Reuse this variable for connections
+var mongoDatastore *MongoDatastore // Reuse this variable for connections
+var once sync.Once
 
 type MongoDatastore struct {
 	Client   *mongo.Client
 	Database *mongo.Database
 }
 
+func GetInstance() *MongoDatastore {
+
+	once.Do(
+		func() {
+			mongoDatastore = &MongoDatastore{}
+		},
+	)
+
+	return mongoDatastore
+}
+
 func InitDatastore() {
 
 	sugar := logger.GetInstance()
 
-	datastore := MongoDatastore{}
+	datastore := GetInstance()
 
 	config := config.GetInstance()
-
-	Datastore = &datastore
 
 	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
 	clientOptions := options.Client().
@@ -38,7 +49,7 @@ func InitDatastore() {
 	defer cancel()
 
 	var err error
-	Datastore.Client, err = mongo.Connect(ctx, clientOptions)
+	datastore.Client, err = mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		sugar.Error(err)
 		os.Exit(1)
