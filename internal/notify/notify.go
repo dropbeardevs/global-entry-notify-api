@@ -324,3 +324,32 @@ func DeleteNotificationDetails(userId string, locationId int) error {
 	return nil
 
 }
+
+func GetNotificationDetails(userId string) ([]models.NotificationDetails, error) {
+
+	sugar := logger.GetInstance()
+	sugar.Debugln("GetNotificationDetails called")
+
+	coll := db.Datastore.Database.Collection("notifications")
+
+	var notif models.Notification
+
+	filter := bson.M{
+		"userId": userId,
+	}
+
+	err := coll.FindOne(context.TODO(), filter).Decode(&notif)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return []models.NotificationDetails{}, nil
+		} else {
+			sugar.Error(err)
+			return []models.NotificationDetails{}, err
+		}
+
+	}
+
+	return notif.NotificationDetails, nil
+
+}

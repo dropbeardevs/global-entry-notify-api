@@ -1,10 +1,13 @@
 package main
 
 import (
+	"os"
+	"path"
 	"runtime"
 	"sync"
 	"time"
 
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/api/grpcsrv"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/appts"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
@@ -13,21 +16,32 @@ import (
 )
 
 func init() {
-	initapp.InitApp()
-
-	sugar := logger.GetInstance()
 
 	// Get current running filename
 	_, filename, _, _ := runtime.Caller(0)
 
-	sugar.Infof("Running file: %v", filename)
+	// Change to ../..
+	dir := path.Join(path.Dir(filename), "../..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+
+	initapp.InitApp()
+
+	sugar := logger.GetInstance()
+
+	sugar.Infof("Running folder: %v", dir)
+
 }
 
 func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(4)
+	wg.Add(5)
+
+	go grpcsrv.InitGrpcSrv(&wg)
 
 	go locations.PollLocations(&wg)
 
@@ -42,5 +56,6 @@ func main() {
 	time.Sleep(10 * time.Second)
 
 	go notify.PollNotifications(&wg)
+
 	wg.Wait()
 }

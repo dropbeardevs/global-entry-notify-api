@@ -7,7 +7,7 @@ option go_package = "bitbucket.org/dropbeardevs/global-entry-notify-api/proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
-message ErrorRp { string error = 1; }
+message Error { string error = 1; }
 
 message UpdateNotificationTokenRq {
   string userId = 1;
@@ -25,7 +25,7 @@ message DeleteNotificationDetailsRq {
 }
 
 message NotificationDetails {
-  string locationId = 1;
+  int32 locationId = 1;
   google.protobuf.Timestamp targetDate = 2;
   google.protobuf.Timestamp appointmentDate = 3;
   google.protobuf.Timestamp lastNotifiedDate = 4;
@@ -48,9 +48,19 @@ message LocationsRp {
   string Notes = 14;
 }
 
+message GetNotificationDetailsRq { string userId = 1; }
+
+message GetNotificationDetailsRp {
+  repeated NotificationDetails notificationDetails = 1;
+}
+
 service GlobalEntryNotifyService {
-  rpc UpdateNotificationToken(UpdateNotificationTokenRq) returns (ErrorRp);
-  rpc UpdateNotificationDetails(UpdateNotificationDetailsRq) returns (ErrorRp);
-  rpc DeleteNotificationDetails(DeleteNotificationDetailsRq) returns (ErrorRp);
-  rpc GetLocations(google.protobuf.Empty) returns (LocationsRp);
+  rpc GrpcUpdateNotificationToken(UpdateNotificationTokenRq) returns (Error) {}
+  rpc GrpcUpdateNotificationDetails(UpdateNotificationDetailsRq)
+      returns (Error) {}
+  rpc GrpcDeleteNotificationDetails(DeleteNotificationDetailsRq)
+      returns (Error) {}
+  rpc GrpcGetLocations(google.protobuf.Empty) returns (LocationsRp) {}
+  rpc GrpcGetNotificationDetails(GetNotificationDetailsRq)
+      returns (GetNotificationDetailsRp) {}
 }

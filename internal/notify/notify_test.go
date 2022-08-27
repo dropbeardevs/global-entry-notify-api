@@ -137,3 +137,21 @@ func TestGetDbNotifications(t *testing.T) {
 	}
 
 }
+
+func TestGetNotificationDetails(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+
+	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
+
+	// Execute function
+	result, err := GetNotificationDetails(userId)
+
+	if err != nil {
+		t.Fatalf("GetNotificationDetails(%v) = %v", userId, err)
+	} else {
+		sugar.Infof("GetNotificationDetails(%v) result: %#v", userId, result)
+	}
+
+}
