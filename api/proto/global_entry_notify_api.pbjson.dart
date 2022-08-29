@@ -64,9 +64,9 @@ const NotificationDetails$json = const {
 
 /// Descriptor for `NotificationDetails`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List notificationDetailsDescriptor = $convert.base64Decode('ChNOb3RpZmljYXRpb25EZXRhaWxzEh4KCmxvY2F0aW9uSWQYASABKAVSCmxvY2F0aW9uSWQSOgoKdGFyZ2V0RGF0ZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCnRhcmdldERhdGUSRAoPYXBwb2ludG1lbnREYXRlGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIPYXBwb2ludG1lbnREYXRlEkYKEGxhc3ROb3RpZmllZERhdGUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUhBsYXN0Tm90aWZpZWREYXRl');
-@$core.Deprecated('Use locationsRpDescriptor instead')
-const LocationsRp$json = const {
-  '1': 'LocationsRp',
+@$core.Deprecated('Use locationDescriptor instead')
+const Location$json = const {
+  '1': 'Location',
   '2': const [
     const {'1': 'locationId', '3': 1, '4': 1, '5': 5, '10': 'locationId'},
     const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
@@ -80,13 +80,13 @@ const LocationsRp$json = const {
     const {'1': 'phoneNumber', '3': 10, '4': 1, '5': 9, '10': 'phoneNumber'},
     const {'1': 'phoneAreaCode', '3': 11, '4': 1, '5': 9, '10': 'phoneAreaCode'},
     const {'1': 'phoneCountryCode', '3': 12, '4': 1, '5': 9, '10': 'phoneCountryCode'},
-    const {'1': 'Directions', '3': 13, '4': 1, '5': 9, '10': 'Directions'},
-    const {'1': 'Notes', '3': 14, '4': 1, '5': 9, '10': 'Notes'},
+    const {'1': 'directions', '3': 13, '4': 1, '5': 9, '10': 'directions'},
+    const {'1': 'notes', '3': 14, '4': 1, '5': 9, '10': 'notes'},
   ],
 };
 
-/// Descriptor for `LocationsRp`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List locationsRpDescriptor = $convert.base64Decode('CgtMb2NhdGlvbnNScBIeCgpsb2NhdGlvbklkGAEgASgFUgpsb2NhdGlvbklkEhIKBG5hbWUYAiABKAlSBG5hbWUSGAoHYWRkcmVzcxgDIAEoCVIHYWRkcmVzcxIsChFhZGRyZXNzQWRkaXRpb25hbBgEIAEoCVIRYWRkcmVzc0FkZGl0aW9uYWwSEgoEY2l0eRgFIAEoCVIEY2l0eRIUCgVzdGF0ZRgGIAEoCVIFc3RhdGUSHgoKcG9zdGFsQ29kZRgHIAEoCVIKcG9zdGFsQ29kZRIgCgtjb3VudHJ5Q29kZRgIIAEoCVILY291bnRyeUNvZGUSIgoMdGltZXpvbmVEYXRhGAkgASgJUgx0aW1lem9uZURhdGESIAoLcGhvbmVOdW1iZXIYCiABKAlSC3Bob25lTnVtYmVyEiQKDXBob25lQXJlYUNvZGUYCyABKAlSDXBob25lQXJlYUNvZGUSKgoQcGhvbmVDb3VudHJ5Q29kZRgMIAEoCVIQcGhvbmVDb3VudHJ5Q29kZRIeCgpEaXJlY3Rpb25zGA0gASgJUgpEaXJlY3Rpb25zEhQKBU5vdGVzGA4gASgJUgVOb3Rlcw==');
+/// Descriptor for `Location`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List locationDescriptor = $convert.base64Decode('CghMb2NhdGlvbhIeCgpsb2NhdGlvbklkGAEgASgFUgpsb2NhdGlvbklkEhIKBG5hbWUYAiABKAlSBG5hbWUSGAoHYWRkcmVzcxgDIAEoCVIHYWRkcmVzcxIsChFhZGRyZXNzQWRkaXRpb25hbBgEIAEoCVIRYWRkcmVzc0FkZGl0aW9uYWwSEgoEY2l0eRgFIAEoCVIEY2l0eRIUCgVzdGF0ZRgGIAEoCVIFc3RhdGUSHgoKcG9zdGFsQ29kZRgHIAEoCVIKcG9zdGFsQ29kZRIgCgtjb3VudHJ5Q29kZRgIIAEoCVILY291bnRyeUNvZGUSIgoMdGltZXpvbmVEYXRhGAkgASgJUgx0aW1lem9uZURhdGESIAoLcGhvbmVOdW1iZXIYCiABKAlSC3Bob25lTnVtYmVyEiQKDXBob25lQXJlYUNvZGUYCyABKAlSDXBob25lQXJlYUNvZGUSKgoQcGhvbmVDb3VudHJ5Q29kZRgMIAEoCVIQcGhvbmVDb3VudHJ5Q29kZRIeCgpkaXJlY3Rpb25zGA0gASgJUgpkaXJlY3Rpb25zEhQKBW5vdGVzGA4gASgJUgVub3Rlcw==');
 @$core.Deprecated('Use getNotificationDetailsRqDescriptor instead')
 const GetNotificationDetailsRq$json = const {
   '1': 'GetNotificationDetailsRq',
@@ -107,3 +107,13 @@ const GetNotificationDetailsRp$json = const {
 
 /// Descriptor for `GetNotificationDetailsRp`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getNotificationDetailsRpDescriptor = $convert.base64Decode('ChhHZXROb3RpZmljYXRpb25EZXRhaWxzUnASXgoTbm90aWZpY2F0aW9uRGV0YWlscxgBIAMoCzIsLmdsb2JhbF9lbnRyeV9ub3RpZnlfYXBpLk5vdGlmaWNhdGlvbkRldGFpbHNSE25vdGlmaWNhdGlvbkRldGFpbHM=');
+@$core.Deprecated('Use getLocationsRpDescriptor instead')
+const GetLocationsRp$json = const {
+  '1': 'GetLocationsRp',
+  '2': const [
+    const {'1': 'locationList', '3': 1, '4': 3, '5': 11, '6': '.global_entry_notify_api.Location', '10': 'locationList'},
+  ],
+};
+
+/// Descriptor for `GetLocationsRp`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getLocationsRpDescriptor = $convert.base64Decode('Cg5HZXRMb2NhdGlvbnNScBJFCgxsb2NhdGlvbkxpc3QYASADKAsyIS5nbG9iYWxfZW50cnlfbm90aWZ5X2FwaS5Mb2NhdGlvblIMbG9jYXRpb25MaXN0');

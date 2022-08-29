@@ -66,20 +66,20 @@ type Location struct {
 }
 
 type LocationRs struct {
-	LocationId        int
-	Name              string
-	Address           string
-	AddressAdditional string
-	City              string
-	State             string
-	PostalCode        string
-	CountryCode       string
-	TimezoneData      string
-	PhoneNumber       string
-	PhoneAreaCode     string
-	PhoneCountryCode  string
-	Directions        string
-	Notes             string
+	LocationId        int    `json:"locationId" bson:"locationId"`
+	Name              string `json:"name" bson:"name"`
+	Address           string `json:"address" bson:"address"`
+	AddressAdditional string `json:"addressAdditional" bson:"addressAdditional"`
+	City              string `json:"city" bson:"city"`
+	State             string `json:"state" bson:"state"`
+	PostalCode        string `json:"postalCode" bson:"postalCode"`
+	CountryCode       string `json:"countryCode" bson:"countryCode"`
+	TimezoneData      string `json:"timezoneData" bson:"timezoneData"`
+	PhoneNumber       string `json:"phoneNumber" bson:"phoneNumber"`
+	PhoneAreaCode     string `json:"phoneAreaCode" bson:"phoneAreaCode"`
+	PhoneCountryCode  string `json:"phoneCountryCode" bson:"phoneCountryCode"`
+	Directions        string `json:"directions" bson:"directions"`
+	Notes             string `json:"notes" bson:"notes"`
 }
 
 type Creds struct {

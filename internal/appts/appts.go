@@ -46,7 +46,7 @@ func PollAppointmentList(wg *sync.WaitGroup) error {
 	return nil
 }
 
-func populateAppointmentsDb(locationList *[]models.Location) {
+func populateAppointmentsDb(locationList *[]models.LocationRs) {
 
 	sugar := logger.GetInstance()
 	coll := db.GetInstance().Database.Collection("appointments")

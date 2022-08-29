@@ -155,3 +155,21 @@ func TestGetNotificationDetails(t *testing.T) {
 	}
 
 }
+
+func TestSendNotification(t *testing.T) {
+
+	// Bootstrap code
+	sugar := logger.GetInstance()
+	//token := "ev0Tu9QKRA-b15LMXjcwjH:APA91bEHrwd_sNh3zSl2W-svUkxLBTO1V_cNNC6n3s6m6BELSH5i_wfo9RCjzArSS6wZVn9aStSA_TGZlKoyh1_q7poruQUTLf4fql-E75JUQ9OsjQc3-GupXI6H3b9YEc_omDAiu1Ni"
+	token := "fd8faYbLTSOA-pJzIKEKbp:APA91bEvXKtDsFu1Uowv5Ubeg6ZNCSr3fxPfp6R1PmJ7YoHrwz5O1meFqdt1y2g82W1dzNkqAwGF5R6hL--YxBQK421SaslDl0BGGLcGbw2rWNhkJtw9e-upR2xibQ29ckjvX837cAQ3"
+
+	// Execute function
+	result, err := sendNotification(token)
+
+	if err != nil {
+		t.Fatalf("getDbNotifications() = %v", err)
+	} else {
+		sugar.Infof("getDbNotifications() Success, result: %v", result)
+	}
+
+}

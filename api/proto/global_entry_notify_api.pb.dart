@@ -338,8 +338,8 @@ class NotificationDetails extends $pb.GeneratedMessage {
   $2.Timestamp ensureLastNotifiedDate() => $_ensure(3);
 }
 
-class LocationsRp extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LocationsRp', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'global_entry_notify_api'), createEmptyInstance: create)
+class Location extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Location', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'global_entry_notify_api'), createEmptyInstance: create)
     ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'locationId', $pb.PbFieldType.O3, protoName: 'locationId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'address')
@@ -352,13 +352,13 @@ class LocationsRp extends $pb.GeneratedMessage {
     ..aOS(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'phoneNumber', protoName: 'phoneNumber')
     ..aOS(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'phoneAreaCode', protoName: 'phoneAreaCode')
     ..aOS(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'phoneCountryCode', protoName: 'phoneCountryCode')
-    ..aOS(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Directions', protoName: 'Directions')
-    ..aOS(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Notes', protoName: 'Notes')
+    ..aOS(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'directions')
+    ..aOS(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notes')
     ..hasRequiredFields = false
   ;
 
-  LocationsRp._() : super();
-  factory LocationsRp({
+  Location._() : super();
+  factory Location({
     $core.int? locationId,
     $core.String? name,
     $core.String? address,
@@ -419,26 +419,26 @@ class LocationsRp extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory LocationsRp.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory LocationsRp.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  factory Location.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Location.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  LocationsRp clone() => LocationsRp()..mergeFromMessage(this);
+  Location clone() => Location()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  LocationsRp copyWith(void Function(LocationsRp) updates) => super.copyWith((message) => updates(message as LocationsRp)) as LocationsRp; // ignore: deprecated_member_use
+  Location copyWith(void Function(Location) updates) => super.copyWith((message) => updates(message as Location)) as Location; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
-  static LocationsRp create() => LocationsRp._();
-  LocationsRp createEmptyInstance() => create();
-  static $pb.PbList<LocationsRp> createRepeated() => $pb.PbList<LocationsRp>();
+  static Location create() => Location._();
+  Location createEmptyInstance() => create();
+  static $pb.PbList<Location> createRepeated() => $pb.PbList<Location>();
   @$core.pragma('dart2js:noInline')
-  static LocationsRp getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LocationsRp>(create);
-  static LocationsRp? _defaultInstance;
+  static Location getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Location>(create);
+  static Location? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.int get locationId => $_getIZ(0);
@@ -653,5 +653,46 @@ class GetNotificationDetailsRp extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<NotificationDetails> get notificationDetails => $_getList(0);
+}
+
+class GetLocationsRp extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GetLocationsRp', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'global_entry_notify_api'), createEmptyInstance: create)
+    ..pc<Location>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'locationList', $pb.PbFieldType.PM, protoName: 'locationList', subBuilder: Location.create)
+    ..hasRequiredFields = false
+  ;
+
+  GetLocationsRp._() : super();
+  factory GetLocationsRp({
+    $core.Iterable<Location>? locationList,
+  }) {
+    final _result = create();
+    if (locationList != null) {
+      _result.locationList.addAll(locationList);
+    }
+    return _result;
+  }
+  factory GetLocationsRp.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GetLocationsRp.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GetLocationsRp clone() => GetLocationsRp()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GetLocationsRp copyWith(void Function(GetLocationsRp) updates) => super.copyWith((message) => updates(message as GetLocationsRp)) as GetLocationsRp; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GetLocationsRp create() => GetLocationsRp._();
+  GetLocationsRp createEmptyInstance() => create();
+  static $pb.PbList<GetLocationsRp> createRepeated() => $pb.PbList<GetLocationsRp>();
+  @$core.pragma('dart2js:noInline')
+  static GetLocationsRp getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetLocationsRp>(create);
+  static GetLocationsRp? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Location> get locationList => $_getList(0);
 }
 

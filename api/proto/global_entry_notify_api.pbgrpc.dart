@@ -31,10 +31,10 @@ class GlobalEntryNotifyServiceClient extends $grpc.Client {
       ($0.DeleteNotificationDetailsRq value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Error.fromBuffer(value));
   static final _$grpcGetLocations =
-      $grpc.ClientMethod<$1.Empty, $0.LocationsRp>(
+      $grpc.ClientMethod<$1.Empty, $0.GetLocationsRp>(
           '/global_entry_notify_api.GlobalEntryNotifyService/GrpcGetLocations',
           ($1.Empty value) => value.writeToBuffer(),
-          ($core.List<$core.int> value) => $0.LocationsRp.fromBuffer(value));
+          ($core.List<$core.int> value) => $0.GetLocationsRp.fromBuffer(value));
   static final _$grpcGetNotificationDetails = $grpc.ClientMethod<
           $0.GetNotificationDetailsRq, $0.GetNotificationDetailsRp>(
       '/global_entry_notify_api.GlobalEntryNotifyService/GrpcGetNotificationDetails',
@@ -68,7 +68,7 @@ class GlobalEntryNotifyServiceClient extends $grpc.Client {
         options: options);
   }
 
-  $grpc.ResponseFuture<$0.LocationsRp> grpcGetLocations($1.Empty request,
+  $grpc.ResponseFuture<$0.GetLocationsRp> grpcGetLocations($1.Empty request,
       {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$grpcGetLocations, request, options: options);
   }
@@ -109,13 +109,13 @@ abstract class GlobalEntryNotifyServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.DeleteNotificationDetailsRq.fromBuffer(value),
         ($0.Error value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$1.Empty, $0.LocationsRp>(
+    $addMethod($grpc.ServiceMethod<$1.Empty, $0.GetLocationsRp>(
         'GrpcGetLocations',
         grpcGetLocations_Pre,
         false,
         false,
         ($core.List<$core.int> value) => $1.Empty.fromBuffer(value),
-        ($0.LocationsRp value) => value.writeToBuffer()));
+        ($0.GetLocationsRp value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.GetNotificationDetailsRq,
             $0.GetNotificationDetailsRp>(
         'GrpcGetNotificationDetails',
@@ -145,7 +145,7 @@ abstract class GlobalEntryNotifyServiceBase extends $grpc.Service {
     return grpcDeleteNotificationDetails(call, await request);
   }
 
-  $async.Future<$0.LocationsRp> grpcGetLocations_Pre(
+  $async.Future<$0.GetLocationsRp> grpcGetLocations_Pre(
       $grpc.ServiceCall call, $async.Future<$1.Empty> request) async {
     return grpcGetLocations(call, await request);
   }
@@ -162,7 +162,7 @@ abstract class GlobalEntryNotifyServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.UpdateNotificationDetailsRq request);
   $async.Future<$0.Error> grpcDeleteNotificationDetails(
       $grpc.ServiceCall call, $0.DeleteNotificationDetailsRq request);
-  $async.Future<$0.LocationsRp> grpcGetLocations(
+  $async.Future<$0.GetLocationsRp> grpcGetLocations(
       $grpc.ServiceCall call, $1.Empty request);
   $async.Future<$0.GetNotificationDetailsRp> grpcGetNotificationDetails(
       $grpc.ServiceCall call, $0.GetNotificationDetailsRq request);

@@ -7,8 +7,11 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "bitbucket.org/dropbeardevs/global-entry-notify-api/api/proto"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
@@ -46,7 +49,9 @@ func main() {
 
 	c := pb.NewGlobalEntryNotifyServiceClient(conn)
 
-	getNotificationDetails(c)
+	//getNotificationDetails(c)
+	//updateNotificationToken(c)
+	getLocations(c)
 }
 
 func getNotificationDetails(c pb.GlobalEntryNotifyServiceClient) {
@@ -67,4 +72,36 @@ func getNotificationDetails(c pb.GlobalEntryNotifyServiceClient) {
 	for _, n := range res.NotificationDetails {
 		sugar.Infof("Notification Details: %#v", n)
 	}
+}
+
+func updateNotificationToken(c pb.GlobalEntryNotifyServiceClient) {
+
+	sugar := logger.GetInstance()
+	sugar.Infoln("updateNotificationToken was invoked")
+
+	updateNotificationTokenRq := pb.UpdateNotificationTokenRq{
+		UserId: "3D05A979-35F9-4A40-B075-444DEB63537A",
+		Token:  uuid.NewString(),
+	}
+
+	_, err := c.GrpcUpdateNotificationToken(context.Background(), &updateNotificationTokenRq)
+
+	if err != nil {
+		sugar.Fatalf("Could not update notification token details: %v", err)
+	}
+}
+
+func getLocations(c pb.GlobalEntryNotifyServiceClient) {
+
+	sugar := logger.GetInstance()
+	sugar.Infoln("getLocations was invoked")
+
+	var empty emptypb.Empty
+
+	pblocationList, err := c.GrpcGetLocations(context.Background(), &empty)
+	if err != nil {
+		sugar.Fatalf("Could not get locations, details: %v", err)
+	}
+
+	sugar.Infof("%#v", protojson.Format(pblocationList))
 }

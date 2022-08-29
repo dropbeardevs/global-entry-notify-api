@@ -31,7 +31,7 @@ message NotificationDetails {
   google.protobuf.Timestamp lastNotifiedDate = 4;
 }
 
-message LocationsRp {
+message Location {
   int32 locationId = 1;
   string name = 2;
   string address = 3;
@@ -44,8 +44,8 @@ message LocationsRp {
   string phoneNumber = 10;
   string phoneAreaCode = 11;
   string phoneCountryCode = 12;
-  string Directions = 13;
-  string Notes = 14;
+  string directions = 13;
+  string notes = 14;
 }
 
 message GetNotificationDetailsRq { string userId = 1; }
@@ -54,13 +54,15 @@ message GetNotificationDetailsRp {
   repeated NotificationDetails notificationDetails = 1;
 }
 
+message GetLocationsRp { repeated Location locationList = 1; }
+
 service GlobalEntryNotifyService {
   rpc GrpcUpdateNotificationToken(UpdateNotificationTokenRq) returns (Error) {}
   rpc GrpcUpdateNotificationDetails(UpdateNotificationDetailsRq)
       returns (Error) {}
   rpc GrpcDeleteNotificationDetails(DeleteNotificationDetailsRq)
       returns (Error) {}
-  rpc GrpcGetLocations(google.protobuf.Empty) returns (LocationsRp) {}
+  rpc GrpcGetLocations(google.protobuf.Empty) returns (GetLocationsRp) {}
   rpc GrpcGetNotificationDetails(GetNotificationDetailsRq)
       returns (GetNotificationDetailsRp) {}
 }

@@ -26,7 +26,7 @@ type GlobalEntryNotifyServiceClient interface {
 	GrpcUpdateNotificationToken(ctx context.Context, in *UpdateNotificationTokenRq, opts ...grpc.CallOption) (*Error, error)
 	GrpcUpdateNotificationDetails(ctx context.Context, in *UpdateNotificationDetailsRq, opts ...grpc.CallOption) (*Error, error)
 	GrpcDeleteNotificationDetails(ctx context.Context, in *DeleteNotificationDetailsRq, opts ...grpc.CallOption) (*Error, error)
-	GrpcGetLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LocationsRp, error)
+	GrpcGetLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLocationsRp, error)
 	GrpcGetNotificationDetails(ctx context.Context, in *GetNotificationDetailsRq, opts ...grpc.CallOption) (*GetNotificationDetailsRp, error)
 }
 
@@ -65,8 +65,8 @@ func (c *globalEntryNotifyServiceClient) GrpcDeleteNotificationDetails(ctx conte
 	return out, nil
 }
 
-func (c *globalEntryNotifyServiceClient) GrpcGetLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LocationsRp, error) {
-	out := new(LocationsRp)
+func (c *globalEntryNotifyServiceClient) GrpcGetLocations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLocationsRp, error) {
+	out := new(GetLocationsRp)
 	err := c.cc.Invoke(ctx, "/global_entry_notify_api.GlobalEntryNotifyService/GrpcGetLocations", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ type GlobalEntryNotifyServiceServer interface {
 	GrpcUpdateNotificationToken(context.Context, *UpdateNotificationTokenRq) (*Error, error)
 	GrpcUpdateNotificationDetails(context.Context, *UpdateNotificationDetailsRq) (*Error, error)
 	GrpcDeleteNotificationDetails(context.Context, *DeleteNotificationDetailsRq) (*Error, error)
-	GrpcGetLocations(context.Context, *emptypb.Empty) (*LocationsRp, error)
+	GrpcGetLocations(context.Context, *emptypb.Empty) (*GetLocationsRp, error)
 	GrpcGetNotificationDetails(context.Context, *GetNotificationDetailsRq) (*GetNotificationDetailsRp, error)
 	mustEmbedUnimplementedGlobalEntryNotifyServiceServer()
 }
@@ -108,7 +108,7 @@ func (UnimplementedGlobalEntryNotifyServiceServer) GrpcUpdateNotificationDetails
 func (UnimplementedGlobalEntryNotifyServiceServer) GrpcDeleteNotificationDetails(context.Context, *DeleteNotificationDetailsRq) (*Error, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GrpcDeleteNotificationDetails not implemented")
 }
-func (UnimplementedGlobalEntryNotifyServiceServer) GrpcGetLocations(context.Context, *emptypb.Empty) (*LocationsRp, error) {
+func (UnimplementedGlobalEntryNotifyServiceServer) GrpcGetLocations(context.Context, *emptypb.Empty) (*GetLocationsRp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GrpcGetLocations not implemented")
 }
 func (UnimplementedGlobalEntryNotifyServiceServer) GrpcGetNotificationDetails(context.Context, *GetNotificationDetailsRq) (*GetNotificationDetailsRp, error) {

@@ -139,20 +139,18 @@ func saveLocationsDb(wsLocations *[]models.Location) {
 	}
 }
 
-func GetLocations() (*[]models.Location, error) {
+func GetLocations() (*[]models.LocationRs, error) {
 	sugar := logger.GetInstance()
 	coll := db.GetInstance().Database.Collection("locations")
 
-	var locationList []models.Location
+	var locationList []models.LocationRs
 
 	sugar.Debugln("GetLocations called")
 
 	filter := bson.M{
-		"operational": true,
-		"inviteOnly":  false,
-		"services": bson.M{
-			"name": "Global Entry",
-		},
+		"operational":   true,
+		"inviteOnly":    false,
+		"services.name": "Global Entry",
 	}
 
 	cursor, err := coll.Find(context.TODO(), filter)
@@ -165,7 +163,7 @@ func GetLocations() (*[]models.Location, error) {
 
 	for cursor.Next(context.TODO()) {
 
-		var dbLocation models.Location
+		var dbLocation models.LocationRs
 
 		if err = cursor.Decode(&dbLocation); err != nil {
 			sugar.Error(err)
