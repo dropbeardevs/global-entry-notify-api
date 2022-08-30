@@ -1,4 +1,4 @@
-FROM alpine:3.16.2
+FROM golang:1.19
 
 WORKDIR /usr/local/bin
 
