@@ -14,8 +14,8 @@ import (
 func init() {
 
 	homeDir, _ := os.UserHomeDir()
-	os.Setenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG", homeDir+"/Developer/secrets/global-entry-notify-api/config.yml")
-	defer os.Unsetenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG")
+	os.Setenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG", homeDir+"/Developer/secrets/global-entry-notify-api/config.yml")
+	defer os.Unsetenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG")
 
 	// Get current running filename
 	_, filename, _, _ := runtime.Caller(0)

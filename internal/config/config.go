@@ -21,9 +21,9 @@ func GetInstance() *models.Configuration {
 
 			var c models.Configuration
 
-			log.Println("GLOBAL-ENTRY-NOTIFY-API-CONFIG: ", os.Getenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG"))
+			log.Println("GLOBAL_ENTRY_NOTIFY_API_CONFIG: ", os.Getenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG"))
 
-			configFile := os.Getenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG")
+			configFile := os.Getenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG")
 
 			bytes, err := ioutil.ReadFile(configFile)
 			if err != nil {
