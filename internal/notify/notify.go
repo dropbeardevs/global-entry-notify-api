@@ -3,7 +3,6 @@ package notify
 import (
 	"context"
 	"errors"
-	"strconv"
 	"sync"
 	"time"
 
@@ -83,9 +82,9 @@ func getDbNotifications() error {
 				return err
 			}
 
-			sugar.Infof("LocationId: %v", appt.LocationId)
-			sugar.Infof("User: %v", notif.UserId)
-			sugar.Infof("Token: %v", notif.Token)
+			// sugar.Infof("LocationId: %v", appt.LocationId)
+			// sugar.Infof("User: %v", notif.UserId)
+			// sugar.Infof("Token: %v", notif.Token)
 
 			for _, notifDetail := range notif.NotificationDetails {
 
@@ -106,12 +105,12 @@ func getDbNotifications() error {
 							return err
 						}
 
-						dateLayout := "January 2, 2006 3:04 PM"
+						dateLayout := "January 2, 2006"
 
 						msg := "New Global Entry appointment available at " +
-							locs.Name + " " + appt.Date.Format(dateLayout) + " " + locs.TimezoneData
+							locs.Name + " " + appt.Date.Format(dateLayout)
 
-						result, err := sendNotification(notif.Token, msg, appt.LocationId)
+						result, err := sendNotification(notif.Token, msg)
 						if err != nil {
 							sugar.Error(err)
 							return err
@@ -185,10 +184,12 @@ func getDbNotifications() error {
 
 }
 
-func sendNotification(token string, notifyMessage string, locationId int) (string, error) {
+func sendNotification(token string, notifyMessage string) (string, error) {
 
 	sugar := logger.GetInstance()
 	sugar.Infoln("sendNotification called")
+
+	config := config.GetInstance()
 
 	// Obtain a messaging.Client from the App.
 	ctx := context.Background()
@@ -206,7 +207,7 @@ func sendNotification(token string, notifyMessage string, locationId int) (strin
 			Body:  notifyMessage,
 		},
 		Data: map[string]string{
-			"LocationId": strconv.Itoa(locationId),
+			"TrustedTravelerUrl": config.TrustedTravelerUrl,
 		},
 		Token: token,
 	}
@@ -219,9 +220,10 @@ func sendNotification(token string, notifyMessage string, locationId int) (strin
 	if err != nil {
 		if messaging.IsRegistrationTokenNotRegistered(err) {
 			deleteNotificationToken(token)
+		} else {
+			sugar.Errorln(err)
+			return "", err
 		}
-
-		sugar.Errorln(err)
 	}
 
 	// Response is a message ID string.

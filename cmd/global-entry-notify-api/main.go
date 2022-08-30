@@ -9,7 +9,6 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/api/grpcsrv"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/appts"
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/notify"
@@ -26,8 +25,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	initapp.InitApp()
 
 	sugar := logger.GetInstance()
 

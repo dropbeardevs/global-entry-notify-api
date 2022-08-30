@@ -9,10 +9,11 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/global-entry-notify-api"
+            "program": "${workspaceFolder}/cmd/global-entry-notify-api",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "$HOME/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json",
+                "GLOBAL-ENTRY-NOTIFY-API-CONFIG": "$HOME/Developer/secrets/global-entry-notify-api/config.yml"
+            }
         },
     ],
-    "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/homerdulu/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
-    }
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"sync"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
@@ -12,12 +13,19 @@ import (
 var config *models.Configuration
 var once sync.Once
 
-func LoadConfig(filename *string) {
+func GetInstance() *models.Configuration {
 	once.Do(
 		func() {
+
+			log.Println("Config initializing")
+
 			var c models.Configuration
 
-			bytes, err := ioutil.ReadFile(*filename)
+			log.Println("GLOBAL-ENTRY-NOTIFY-API-CONFIG: ", os.Getenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG"))
+
+			configFile := os.Getenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG")
+
+			bytes, err := ioutil.ReadFile(configFile)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -28,10 +36,9 @@ func LoadConfig(filename *string) {
 			}
 
 			config = &c
+
+			log.Println("Config initialized")
 		},
 	)
-}
-
-func GetInstance() *models.Configuration {
 	return config
 }

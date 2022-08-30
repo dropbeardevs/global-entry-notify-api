@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"github.com/google/uuid"
@@ -23,8 +22,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	initapp.InitApp()
 
 	sugar := logger.GetInstance()
 
@@ -177,7 +174,7 @@ func TestSendNotification(t *testing.T) {
 	msg := "New Global Entry Appointment Available at " + time.Format(dateLayout)
 
 	// Execute function
-	result, err := sendNotification(token, msg, 5001)
+	result, err := sendNotification(token, msg)
 
 	if err != nil {
 		t.Fatalf("getDbNotifications() = %v", err)

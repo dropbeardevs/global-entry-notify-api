@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"testing"
 
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/initapp"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 )
 
@@ -20,8 +19,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	initapp.InitApp()
 
 	sugar := logger.GetInstance()
 

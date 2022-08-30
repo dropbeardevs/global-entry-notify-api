@@ -27,6 +27,7 @@ func GetInstance() *MongoDatastore {
 	once.Do(
 		func() {
 			sugar := logger.GetInstance()
+			sugar.Infoln("DB initializing")
 
 			mongoDatastore = &MongoDatastore{}
 

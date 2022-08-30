@@ -107,4 +107,5 @@ type Configuration struct {
 	LogFileLocation            string            `yaml:"logFileLocation"`
 	ZapDefaultLogLevel         string            `yaml:"zapDefaultLogLevel"`
 	GrpcServerAddress          string            `yaml:"grpcServerAddress"`
+	TrustedTravelerUrl         string            `yaml:"trustedTravelerUrl"`
 }

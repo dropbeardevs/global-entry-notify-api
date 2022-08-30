@@ -2,6 +2,7 @@ package fb
 
 import (
 	"context"
+	"os"
 	"sync"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
@@ -17,9 +18,12 @@ func GetInstance() *firebase.App {
 		func() {
 
 			sugar := logger.GetInstance()
+			sugar.Infoln("Firebase App initializing")
 
 			// Use a service account
 			ctx := context.Background()
+
+			sugar.Infoln("GOOGLE_APPLICATION_CREDENTIALS: ", os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"))
 
 			app, err := firebase.NewApp(ctx, nil)
 			if err != nil {
@@ -27,6 +31,8 @@ func GetInstance() *firebase.App {
 			}
 
 			firebaseApp = app
+
+			sugar.Infoln("Firebase App initialized")
 		},
 	)
 
