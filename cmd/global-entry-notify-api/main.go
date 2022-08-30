@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-	"path"
 	"runtime"
 	"sync"
 	"time"
@@ -19,16 +17,9 @@ func init() {
 	// Get current running filename
 	_, filename, _, _ := runtime.Caller(0)
 
-	// Change to ../..
-	dir := path.Join(path.Dir(filename), "../..")
-	err := os.Chdir(dir)
-	if err != nil {
-		panic(err)
-	}
-
 	sugar := logger.GetInstance()
 
-	sugar.Infof("Running folder: %v", dir)
+	sugar.Infof("Running filename: %v", filename)
 
 }
 
