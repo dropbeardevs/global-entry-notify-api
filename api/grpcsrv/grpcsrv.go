@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	pb "bitbucket.org/dropbeardevs/global-entry-notify-api/api/proto"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"google.golang.org/grpc"
 )
@@ -29,8 +30,10 @@ func GetInstance() *ServiceServer {
 
 func InitGrpcSrv(wg *sync.WaitGroup) {
 
+	config := config.GetInstance()
+
 	sugar := logger.GetInstance()
-	addr := "localhost:5051"
+	addr := config.GrpcServerAddress
 
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {

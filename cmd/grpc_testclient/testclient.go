@@ -18,7 +18,7 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 )
 
-var addr string = "localhost:5051"
+var addr string = "localhost:8080"
 
 func init() {
 	// Get current running filename
@@ -49,9 +49,9 @@ func main() {
 
 	c := pb.NewGlobalEntryNotifyServiceClient(conn)
 
-	//getNotificationDetails(c)
+	getNotificationDetails(c)
 	//updateNotificationToken(c)
-	getLocations(c)
+	//getLocations(c)
 }
 
 func getNotificationDetails(c pb.GlobalEntryNotifyServiceClient) {
@@ -70,7 +70,8 @@ func getNotificationDetails(c pb.GlobalEntryNotifyServiceClient) {
 	}
 
 	for _, n := range res.NotificationDetails {
-		sugar.Infof("Notification Details: %#v", n)
+		d := protojson.Format(n)
+		sugar.Infof("Notification Details: %#v", d)
 	}
 }
 

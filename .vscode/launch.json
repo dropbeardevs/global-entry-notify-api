@@ -13,6 +13,6 @@
         },
     ],
     "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${HOME}/Developer/global-entry-notify-api/internal/firebase/global-entry-c8373-fe72e1ae9c11.json"
+        "GOOGLE_APPLICATION_CREDENTIALS": "/Users/homerdulu/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
     }
 }

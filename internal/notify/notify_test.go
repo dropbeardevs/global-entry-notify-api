@@ -160,11 +160,24 @@ func TestSendNotification(t *testing.T) {
 
 	// Bootstrap code
 	sugar := logger.GetInstance()
-	//token := "ev0Tu9QKRA-b15LMXjcwjH:APA91bEHrwd_sNh3zSl2W-svUkxLBTO1V_cNNC6n3s6m6BELSH5i_wfo9RCjzArSS6wZVn9aStSA_TGZlKoyh1_q7poruQUTLf4fql-E75JUQ9OsjQc3-GupXI6H3b9YEc_omDAiu1Ni"
-	token := "fd8faYbLTSOA-pJzIKEKbp:APA91bEvXKtDsFu1Uowv5Ubeg6ZNCSr3fxPfp6R1PmJ7YoHrwz5O1meFqdt1y2g82W1dzNkqAwGF5R6hL--YxBQK421SaslDl0BGGLcGbw2rWNhkJtw9e-upR2xibQ29ckjvX837cAQ3"
+
+	token := "9c108294-7c08-4939-b697-6385ee93e376"
+	//token := "fd8faYbLTSOA-pJzIKEKbp:APA91bEvXKtDsFu1Uowv5Ubeg6ZNCSr3fxPfp6R1PmJ7YoHrwz5O1meFqdt1y2g82W1dzNkqAwGF5R6hL--YxBQK421SaslDl0BGGLcGbw2rWNhkJtw9e-upR2xibQ29ckjvX837cAQ3"
+
+	dir, _ := os.UserHomeDir()
+
+	dir = dir + "/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
+
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", dir)
+	defer os.Unsetenv("ENV_VAR")
+
+	time := time.Now()
+	dateLayout := "January 2, 2006 3:04 PM"
+
+	msg := "New Global Entry Appointment Available at " + time.Format(dateLayout)
 
 	// Execute function
-	result, err := sendNotification(token)
+	result, err := sendNotification(token, msg, 5001)
 
 	if err != nil {
 		t.Fatalf("getDbNotifications() = %v", err)

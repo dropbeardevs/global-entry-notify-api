@@ -2,31 +2,33 @@ package fb
 
 import (
 	"context"
+	"sync"
 
-	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/auth"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	firebase "firebase.google.com/go"
-	"google.golang.org/api/option"
 )
 
-var FirebaseApp *firebase.App
+var firebaseApp *firebase.App
+var once sync.Once
 
-func InitFirebaseApp(credsPath *string) {
+func GetInstance() *firebase.App {
 
-	sugar := logger.GetInstance()
+	once.Do(
+		func() {
 
-	// Use a service account
-	ctx := context.Background()
+			sugar := logger.GetInstance()
 
-	json := auth.GetFirebaseCreds(credsPath)
+			// Use a service account
+			ctx := context.Background()
 
-	sa := option.WithCredentialsJSON(json)
+			app, err := firebase.NewApp(ctx, nil)
+			if err != nil {
+				sugar.Fatalf("error initializing app: %v\n", err)
+			}
 
-	app, err := firebase.NewApp(ctx, nil, sa)
-	if err != nil {
-		sugar.Error(err)
-	}
+			firebaseApp = app
+		},
+	)
 
-	FirebaseApp = app
-
+	return firebaseApp
 }

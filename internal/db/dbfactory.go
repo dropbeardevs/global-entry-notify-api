@@ -26,50 +26,45 @@ func GetInstance() *MongoDatastore {
 
 	once.Do(
 		func() {
+			sugar := logger.GetInstance()
+
 			mongoDatastore = &MongoDatastore{}
+
+			config := config.GetInstance()
+
+			serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
+			clientOptions := options.Client().
+				ApplyURI(config.ConnectionString).
+				SetServerAPIOptions(serverAPIOptions)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			var err error
+			mongoDatastore.Client, err = mongo.Connect(ctx, clientOptions)
+			if err != nil {
+				sugar.Error(err)
+				os.Exit(1)
+			}
+
+			mongoDatastore.Database = mongoDatastore.Client.Database("globalEntryNotifyDb")
+
+			// Check the connection
+			err = mongoDatastore.Client.Ping(ctx, readpref.Primary())
+
+			if err != nil {
+				sugar.Error(err)
+				os.Exit(1)
+			}
+
+			sugar.Infoln("Connected to MongoDB!")
+
+			databases, err := mongoDatastore.Client.ListDatabaseNames(context.TODO(), bson.M{})
+			if err != nil {
+				sugar.Error(err)
+			}
+			sugar.Infof("Databases: %v", databases)
 		},
 	)
 
 	return mongoDatastore
-}
-
-func InitDatastore() {
-
-	sugar := logger.GetInstance()
-
-	datastore := GetInstance()
-
-	config := config.GetInstance()
-
-	serverAPIOptions := options.ServerAPI(options.ServerAPIVersion1)
-	clientOptions := options.Client().
-		ApplyURI(config.ConnectionString).
-		SetServerAPIOptions(serverAPIOptions)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var err error
-	datastore.Client, err = mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		sugar.Error(err)
-		os.Exit(1)
-	}
-
-	datastore.Database = datastore.Client.Database("globalEntryNotifyDb")
-
-	// Check the connection
-	err = datastore.Client.Ping(ctx, readpref.Primary())
-
-	if err != nil {
-		sugar.Error(err)
-		os.Exit(1)
-	}
-
-	sugar.Infoln("Connected to MongoDB!")
-
-	databases, err := datastore.Client.ListDatabaseNames(context.TODO(), bson.M{})
-	if err != nil {
-		sugar.Error(err)
-	}
-	sugar.Infof("Databases: %v", databases)
 }

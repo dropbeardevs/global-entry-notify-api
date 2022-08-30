@@ -69,6 +69,7 @@ func populateAppointmentsDb(locationList *[]models.LocationRs) {
 			var appointmentEntry models.DbAppointment
 
 			appointmentEntry.LocationId = location.LocationId
+			appointmentEntry.TimezoneData = location.TimezoneData
 			appointmentEntry.LastUpdated = time.Now()
 
 			result, err := coll.InsertOne(context.TODO(), appointmentEntry)

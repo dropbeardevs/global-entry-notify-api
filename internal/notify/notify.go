@@ -3,6 +3,7 @@ package notify
 import (
 	"context"
 	"errors"
+	"strconv"
 	"sync"
 	"time"
 
@@ -46,6 +47,7 @@ func getDbNotifications() error {
 	sugar := logger.GetInstance()
 	collAppts := db.GetInstance().Database.Collection("appointments")
 	collNotifs := db.GetInstance().Database.Collection("notifications")
+	collLocs := db.GetInstance().Database.Collection("locations")
 
 	// Get all appointments
 	cursorAppts, err := collAppts.Find(context.TODO(), bson.M{})
@@ -95,7 +97,21 @@ func getDbNotifications() error {
 					if (appt.Date.Before(notifDetail.TargetDate)) &&
 						(appt.Date != notifDetail.AppointmentDate) {
 
-						result, err := sendNotification(notif.Token)
+						var locs models.Location
+						filterLocs := bson.M{"locationId": appt.LocationId}
+
+						err := collLocs.FindOne(context.TODO(), filterLocs).Decode(&locs)
+						if err != nil {
+							sugar.Error(err)
+							return err
+						}
+
+						dateLayout := "January 2, 2006 3:04 PM"
+
+						msg := "New Global Entry appointment available at " +
+							locs.Name + " " + appt.Date.Format(dateLayout) + " " + locs.TimezoneData
+
+						result, err := sendNotification(notif.Token, msg, appt.LocationId)
 						if err != nil {
 							sugar.Error(err)
 							return err
@@ -108,6 +124,7 @@ func getDbNotifications() error {
 							update := bson.M{
 								"$set": bson.M{
 									"notificationDetails.$.appointmentDate":  appt.Date,
+									"notificationDetails.$.timezoneData":     appt.TimezoneData,
 									"notificationDetails.$.lastNotifiedDate": time.Now(),
 								},
 							}
@@ -168,30 +185,42 @@ func getDbNotifications() error {
 
 }
 
-func sendNotification(token string) (string, error) {
+func sendNotification(token string, notifyMessage string, locationId int) (string, error) {
 
 	sugar := logger.GetInstance()
 	sugar.Infoln("sendNotification called")
 
 	// Obtain a messaging.Client from the App.
 	ctx := context.Background()
-	client, err := fb.FirebaseApp.Messaging(ctx)
+	fbInstance := fb.GetInstance()
+
+	client, err := fbInstance.Messaging(ctx)
 	if err != nil {
 		sugar.Errorf("error getting Messaging client: %v", err)
+		return "", err
 	}
 
 	message := &messaging.Message{
+		Notification: &messaging.Notification{
+			Title: "Global Entry Notify",
+			Body:  notifyMessage,
+		},
 		Data: map[string]string{
-			"score": "850",
-			"time":  "2:45",
+			"LocationId": strconv.Itoa(locationId),
 		},
 		Token: token,
 	}
+
+	sugar.Infof("Token: %v", token)
 
 	// Send a message to the device corresponding to the provided
 	// registration token.
 	response, err := client.Send(ctx, message)
 	if err != nil {
+		if messaging.IsRegistrationTokenNotRegistered(err) {
+			deleteNotificationToken(token)
+		}
+
 		sugar.Errorln(err)
 	}
 
@@ -234,6 +263,27 @@ func UpdateNotificationToken(userId string, token string) error {
 
 	return nil
 
+}
+
+func deleteNotificationToken(token string) {
+
+	sugar := logger.GetInstance()
+	sugar.Debugln("DeleteNotificationToken called")
+
+	coll := db.GetInstance().Database.Collection("notifications")
+
+	filter := bson.M{
+		"token": token,
+	}
+
+	result, err := coll.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		sugar.Error(err)
+	} else if result.DeletedCount > 0 {
+		sugar.Infof("Document deleted for token: %v", token)
+	} else {
+		sugar.Infoln("No documents deleted")
+	}
 }
 
 func UpdateNotificationDetails(userId string, notificationDetails models.NotificationDetails) error {
