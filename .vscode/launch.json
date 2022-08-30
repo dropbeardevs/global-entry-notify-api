@@ -10,6 +10,19 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/global-entry-notify-api",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "GOOGLE_APPLICATION_CREDENTIALS": "${env:HOME}/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json",
+                "GLOBAL_ENTRY_NOTIFY_API_CONFIG": "${env:HOME}/Developer/secrets/global-entry-notify-api/config.yml"
+            }
+        },
+        {
+            "name": "Launch Test Client",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/grpc_testclient",
+            "cwd": "${workspaceFolder}",
             "env": {
                 "GOOGLE_APPLICATION_CREDENTIALS": "${env:HOME}/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json",
                 "GLOBAL_ENTRY_NOTIFY_API_CONFIG": "${env:HOME}/Developer/secrets/global-entry-notify-api/config.yml"

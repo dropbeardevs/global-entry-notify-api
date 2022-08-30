@@ -3,9 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
-	"path"
-	"runtime"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -17,23 +14,7 @@ import (
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 )
 
-var addr string = "localhost:8080"
-
-func init() {
-	// Get current running filename
-	_, filename, _, _ := runtime.Caller(0)
-
-	// Change to ../..
-	dir := path.Join(path.Dir(filename), "../..")
-	err := os.Chdir(dir)
-	if err != nil {
-		panic(err)
-	}
-
-	sugar := logger.GetInstance()
-
-	sugar.Infof("Running folder: %v", dir)
-}
+var addr string = "192.168.4.46:8080"
 
 func main() {
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
