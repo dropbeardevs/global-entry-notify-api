@@ -11,8 +11,8 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/global-entry-notify-api",
             "env": {
-                "GOOGLE_APPLICATION_CREDENTIALS": "$HOME/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json",
-                "GLOBAL-ENTRY-NOTIFY-API-CONFIG": "$HOME/Developer/secrets/global-entry-notify-api/config.yml"
+                "GOOGLE_APPLICATION_CREDENTIALS": "${env:HOME}/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json",
+                "GLOBAL-ENTRY-NOTIFY-API-CONFIG": "${env:HOME}/Developer/secrets/global-entry-notify-api/config.yml"
             }
         },
     ],

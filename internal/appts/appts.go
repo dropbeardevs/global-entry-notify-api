@@ -39,6 +39,7 @@ func PollAppointmentList(wg *sync.WaitGroup) error {
 
 	for range ticker.C {
 		populateAppointmentsDb(locationList)
+
 	}
 
 	wg.Done()

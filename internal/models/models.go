@@ -17,7 +17,6 @@ type NotificationDetails struct {
 	LocationId       int       `bson:"locationId"`      // Selected Location IDs
 	TargetDate       time.Time `bson:"targetDate"`      // Want to get notifications for appointments before this date
 	AppointmentDate  time.Time `bson:"appointmentDate"` // Save appointment date
-	TimezoneData     string    `bson:"timezoneData"`
 	LastNotifiedDate time.Time `bson:"lastNotifiedDate"`
 }
 

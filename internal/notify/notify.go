@@ -123,7 +123,6 @@ func getDbNotifications() error {
 							update := bson.M{
 								"$set": bson.M{
 									"notificationDetails.$.appointmentDate":  appt.Date,
-									"notificationDetails.$.timezoneData":     appt.TimezoneData,
 									"notificationDetails.$.lastNotifiedDate": time.Now(),
 								},
 							}

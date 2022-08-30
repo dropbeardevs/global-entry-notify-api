@@ -9,10 +9,14 @@ import (
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
-	"github.com/google/uuid"
 )
 
 func init() {
+
+	homeDir, _ := os.UserHomeDir()
+	os.Setenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG", homeDir+"/Developer/secrets/global-entry-notify-api/config.yml")
+	defer os.Unsetenv("GLOBAL-ENTRY-NOTIFY-API-CONFIG")
+
 	// Get current running filename
 	_, filename, _, _ := runtime.Caller(0)
 
@@ -35,7 +39,7 @@ func TestUpdateNotificationDetails(t *testing.T) {
 	var err error
 
 	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
-	targetDate, _ := time.Parse("2006-01-02", "2023-12-31")
+	targetDate, _ := time.Parse("2006-01-02", "2022-10-31")
 
 	notificationDetails := models.NotificationDetails{LocationId: 5001, TargetDate: targetDate}
 
@@ -91,30 +95,15 @@ func TestUpdateNotificationToken(t *testing.T) {
 	sugar := logger.GetInstance()
 	var err error
 
-	userId1 := "3D05A979-35F9-4A40-B075-444DEB63537A"
-	userId2 := "567D334A-62FA-456C-9065-6E1DD7FED0A1"
-	userId3 := "D698CD9B-4C73-4168-BBB2-FDA3CCB10C40"
+	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
+	token := "fd8faYbLTSOA-pJzIKEKbp:APA91bEvXKtDsFu1Uowv5Ubeg6ZNCSr3fxPfp6R1PmJ7YoHrwz5O1meFqdt1y2g82W1dzNkqAwGF5R6hL--YxBQK421SaslDl0BGGLcGbw2rWNhkJtw9e-upR2xibQ29ckjvX837cAQ3"
 
 	// Execute function
-	err = UpdateNotificationToken(userId1, uuid.NewString())
+	err = UpdateNotificationToken(userId, token)
 	if err != nil {
-		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId1, err)
+		t.Fatalf("UpdateNotificationToken(%v, %v) = %v, want nil", userId, token, err)
 	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", userId1)
-	}
-
-	err = UpdateNotificationToken(userId2, uuid.NewString())
-	if err != nil {
-		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId2, err)
-	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", userId2)
-	}
-
-	err = UpdateNotificationToken(userId3, uuid.NewString())
-	if err != nil {
-		t.Fatalf("UpdateNotificationToken(%v) = %v, want nil", userId3, err)
-	} else {
-		sugar.Infof("UpdateNotification(%v) Success\n", userId3)
+		sugar.Infof("UpdateNotification(%v, %v) Success\n", userId, token)
 	}
 
 }
