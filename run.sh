@@ -6,10 +6,12 @@ then
 
 elif [ $1 = "--daemon" ]
 then
-    docker run -d --rm -p 8080:8080 \
+    docker run -d -p 8080:8080 \
     -e GOOGLE_APPLICATION_CREDENTIALS="fbauth.json" \
     -e GLOBAL_ENTRY_NOTIFY_API_CONFIG="config.yml" \
     -v /var/log/global-entry-notify-api:/var/log/global-entry-notify-api \
+    --restart=always
+    -n global_entry_notify_api
     global-entry-notify-api 
 
 elif [ $1 = "--shell" ]
