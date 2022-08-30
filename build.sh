@@ -1,5 +1,7 @@
 #/bin/sh
 
+rm -rf ./bin
+
 mkdir ./bin
 
 go build -v -o ./bin ./...
