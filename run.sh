@@ -11,6 +11,7 @@ then
     -e GLOBAL_ENTRY_NOTIFY_API_CONFIG="config.yml" \
     -v /var/log/global-entry-notify-api:/var/log/global-entry-notify-api \
     --restart=always
+    --net=host
     -n global_entry_notify_api
     global-entry-notify-api 
 
