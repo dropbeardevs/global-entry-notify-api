@@ -12,6 +12,8 @@ import (
 var sugar *zap.SugaredLogger
 var once sync.Once
 
+type HttpLogMessage struct{}
+
 func GetInstance() *zap.SugaredLogger {
 	once.Do(
 		func() {
@@ -42,4 +44,20 @@ func GetInstance() *zap.SugaredLogger {
 	)
 
 	return sugar
+}
+
+func (m HttpLogMessage) Error(msg string, keysAndValues ...interface{}) {
+	sugar.Error(msg, keysAndValues)
+}
+
+func (m HttpLogMessage) Info(msg string, keysAndValues ...interface{}) {
+	sugar.Info(msg, keysAndValues)
+}
+
+func (m HttpLogMessage) Debug(msg string, keysAndValues ...interface{}) {
+	sugar.Debug(msg, keysAndValues)
+}
+
+func (m HttpLogMessage) Warn(msg string, keysAndValues ...interface{}) {
+	sugar.Debug(msg, keysAndValues)
 }

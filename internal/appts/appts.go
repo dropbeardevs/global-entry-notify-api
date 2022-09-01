@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"net/http"
 	"sync"
 	"text/template"
 	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/http"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/locations"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
@@ -191,7 +191,8 @@ func getWsAppointment(locationId int) models.WsAppointment {
 	url := buf.String()
 
 	// Get appointment from WS
-	resp, err := http.Get(url)
+	httpClient := http.GetInstance()
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		sugar.Error(err)
 	}

@@ -107,8 +107,8 @@ func getDbNotifications() error {
 
 						dateLayout := "January 2, 2006"
 
-						msg := "New Global Entry appointment available at " +
-							locs.Name + " " + appt.Date.Format(dateLayout)
+						msg := locs.Name + " Global Entry Appointment Available " +
+							appt.Date.Format(dateLayout)
 
 						result, err := sendNotification(notif.Token, msg)
 						if err != nil {

@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	"sync"
 	"time"
 
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/config"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/db"
+	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/http"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/logger"
 	"bitbucket.org/dropbeardevs/global-entry-notify-api/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -46,7 +46,8 @@ func getWsLocations() *[]models.Location {
 
 	sugar.Debugln("getWsLocations called")
 
-	resp, err := http.Get(config.Urls["locations"])
+	httpClient := http.GetInstance()
+	resp, err := httpClient.Get(config.Urls["locations"])
 	if err != nil {
 		sugar.Error(err)
 		return nil
