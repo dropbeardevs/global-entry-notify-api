@@ -27,8 +27,8 @@ func main() {
 
 	c := pb.NewGlobalEntryNotifyServiceClient(conn)
 
-	getNotificationDetails(c)
-	//updateNotificationToken(c)
+	//getNotificationDetails(c)
+	updateNotificationToken(c)
 	//getLocations(c)
 }
 

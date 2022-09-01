@@ -15,7 +15,8 @@ func init() {
 
 	homeDir, _ := os.UserHomeDir()
 	os.Setenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG", homeDir+"/Developer/secrets/global-entry-notify-api/config.yml")
-	defer os.Unsetenv("GLOBAL_ENTRY_NOTIFY_API_CONFIG")
+
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", homeDir+"/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json")
 
 	// Get current running filename
 	_, filename, _, _ := runtime.Caller(0)
@@ -41,11 +42,11 @@ func TestUpdateNotificationDetails(t *testing.T) {
 	userId := "3D05A979-35F9-4A40-B075-444DEB63537A"
 	targetDate, _ := time.Parse("2006-01-02", "2022-10-31")
 
-	notificationDetails := models.NotificationDetails{LocationId: 5001, TargetDate: targetDate}
+	notificationDetails := models.NotificationDetails{LocationId: 5002, TargetDate: targetDate}
 
 	notificationDetails2 := models.NotificationDetails{LocationId: 5180, TargetDate: targetDate}
 
-	notificationDetails3 := models.NotificationDetails{LocationId: 16461, TargetDate: targetDate}
+	notificationDetails3 := models.NotificationDetails{LocationId: 5360, TargetDate: targetDate}
 
 	// Execute function
 	err = UpdateNotificationDetails(userId, notificationDetails)
@@ -147,15 +148,9 @@ func TestSendNotification(t *testing.T) {
 	// Bootstrap code
 	sugar := logger.GetInstance()
 
-	token := "9c108294-7c08-4939-b697-6385ee93e376"
+	//token := "9c108294-7c08-4939-b697-6385ee93e376"
 	//token := "fd8faYbLTSOA-pJzIKEKbp:APA91bEvXKtDsFu1Uowv5Ubeg6ZNCSr3fxPfp6R1PmJ7YoHrwz5O1meFqdt1y2g82W1dzNkqAwGF5R6hL--YxBQK421SaslDl0BGGLcGbw2rWNhkJtw9e-upR2xibQ29ckjvX837cAQ3"
-
-	dir, _ := os.UserHomeDir()
-
-	dir = dir + "/Developer/secrets/global-entry-notify-api/global-entry-c8373-fe72e1ae9c11.json"
-
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", dir)
-	defer os.Unsetenv("ENV_VAR")
+	token := "ekYuJLteFU5LjXvdSyP1CE:APA91bEmSd5KO0pKJBpjWqh6RfUoLmlPygXsrSFFR-0xLN7X1bFv1GgYE5ykYmMGuN7DqZb-tEC9fgTMfmYMW8ES845GQkbyf3HJ_9V3VWhra4839iBd21S1oJzHuC-KwEFJ27Cc94Zm"
 
 	time := time.Now()
 	dateLayout := "January 2, 2006 3:04 PM"

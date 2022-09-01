@@ -118,7 +118,9 @@ func getDbNotifications() error {
 
 						if result == "Success" {
 
-							filter := bson.M{"notificationDetails.locationId": appt.LocationId}
+							filter := bson.M{
+								"userId":                         notif.UserId,
+								"notificationDetails.locationId": appt.LocationId}
 
 							update := bson.M{
 								"$set": bson.M{
