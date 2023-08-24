@@ -1,0 +1,13 @@
+environment: development
+urls:
+  locations: "https://ttp.cbp.dhs.gov/schedulerapi/locations/?temporary=false&inviteOnly=false&operational=true&serviceName=Global%20Entry"
+  appts: "https://ttp.cbp.dhs.gov/schedulerapi/slots?orderBy=soonest&limit=1&locationId={{.LocationId}}&minimum=1"
+connectionString: "mongodb://<Username>:<Password>@<IP address>:27017/?retryWrites=true&w=majority"
+appointmentPollingTime: 120
+locationsPollingTime: 3600
+appointmentListPollingTime: 3600
+notificationPollingTime: 60
+logFileLocation: "./logs/log.json"
+zapDefaultLogLevel: Debug
+grpcServerAddress: "localhost:8080"
+trustedTravelerUrl: "https://ttp.cbp.dhs.gov"

@@ -1,29 +1,19 @@
-# README #
+# README
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is the Global Entry Notify API. The main purpose of this API is to poll the Global Entry APIs
+and notify the user if the specified office has appointments available
 
-### What is this repository for? ###
+### How do I get set up?
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+-   Install Go and dependencies
+-   config.yml
+-   Amazon AWS account
+-   Set up notifications (using Amazon Firebase)
+-   Protobuf
+-   MongoDB access
+-   (optional) Docker
 
-### How do I get set up? ###
+### Optional
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+-   Go to [Global Entry Notify](https://github.com/dropbeardevs/global-entry-notify) for examples
+    on how to connect to the API
